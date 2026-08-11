@@ -20,7 +20,7 @@ import yaml
 from tools.envutil import env, load_dotenv_files
 
 LINEAR_API = "https://api.linear.app/graphql"
-_CFG = Path("/root/.config/hermes-linear/config.yaml")
+_CFG = Path.home() / ".config" / "hermes-linear" / "config.yaml"
 _DEFAULT_CONNECTOR = env("HERMES_LINEAR_URL", "http://127.0.0.1:8799")  # agency-local default
 
 

@@ -6,14 +6,27 @@ import os
 from pathlib import Path
 from typing import Dict, Iterable, Optional
 
-# Project .env is authoritative for agency LINEAR_* / AGENCY_* so a stale shell
-# export (e.g. another org's Linear key) cannot silently win.
-_PROJECT_ENV = Path("/root/src/repos/ai-agency/.env")
-_EXTRA_ENV_FILES = (
-    Path("/root/.config/hermes-linear/connector.env"),
-    Path("/root/.config/parallel/api.env"),
-    Path.home() / ".hermes" / ".env",
-)
+# Prefer repo-relative + home paths so CI runners (non-root) do not choke on
+# developer machine absolute paths.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _project_env() -> Path:
+    return _REPO_ROOT / ".env"
+
+
+def _extra_env_files() -> tuple[Path, ...]:
+    home = Path.home()
+    return (
+        home / ".config" / "hermes-linear" / "connector.env",
+        home / ".config" / "parallel" / "api.env",
+        home / ".hermes" / ".env",
+        # legacy absolute paths (ignored when inaccessible)
+        Path("/root/.config/hermes-linear/connector.env"),
+        Path("/root/.config/parallel/api.env"),
+    )
+
+
 _FORCE_FROM_PROJECT = (
     "LINEAR_API_KEY",
     "LINEAR_TEAM_ID",
@@ -29,9 +42,9 @@ _FORCE_FROM_PROJECT = (
 
 def _parse_env_file(path: Path) -> Dict[str, str]:
     out: Dict[str, str] = {}
-    if not path.is_file():
-        return out
     try:
+        if not path.is_file():
+            return out
         for line in path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
@@ -47,12 +60,12 @@ def _parse_env_file(path: Path) -> Dict[str, str]:
 
 def load_dotenv_files(paths: Iterable[Path] | None = None) -> None:
     # 1) optional extras — fill gaps only
-    for path in paths or _EXTRA_ENV_FILES:
+    for path in paths or _extra_env_files():
         for k, v in _parse_env_file(path).items():
             if k not in os.environ:
                 os.environ[k] = v
     # 2) project .env — fill gaps, then force critical agency keys
-    proj = _parse_env_file(_PROJECT_ENV)
+    proj = _parse_env_file(_project_env())
     for k, v in proj.items():
         if k not in os.environ:
             os.environ[k] = v
