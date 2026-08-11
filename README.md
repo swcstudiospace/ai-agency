@@ -1,154 +1,152 @@
 # AI Dropshipping Agency
 
-End-to-end multi-agent dropshipping agency on **Agno AgentOS**, **Grok (xAI)**, and **Parallel Web Systems**.
+Enterprise multi-agent dropshipping control plane: **Hermes** orchestrates **Agno AgentOS**, **SuperGrok**, **Parallel** research, **Shopify** drafts, **PromptWise/Fal** UGC, and **HITL** ads.
 
-## Hermes control plane (AgentOS MCP)
+**GitHub:** https://github.com/swcstudiospace/ai-agency  
+**Linear:** spectrumwebco · SWC · [AI Dropshipping Agency](https://linear.app/spectrumwebco/project/ai-dropshipping-agency-e61fc9b53cae)  
+**Docs site:** `docs-site/` (Docusaurus) · monorepo guides in `docs/`
 
-Hermes is the top orchestrator. AgentOS exposes MCP at **`http://127.0.0.1:7777/mcp`**.
+---
 
-```bash
-# 1) Start Agency (REST + MCP)
-./scripts/start_agentos.sh
-# or: source .venv/bin/activate && PYTHONPATH=. python -m app.main
+## What it does
 
-# 2) Register once in Hermes
-printf 'n\nY\n' | hermes mcp add ai-agency --url 'http://127.0.0.1:7777/mcp' --connect-timeout 90
-hermes config set mcp_servers.ai-agency.timeout 3600
-hermes mcp test ai-agency
-
-# 3) New Hermes session — tools appear as mcp_ai_agency_*
+```text
+Discover niches  →  Rank GO/TEST  →  LOCATE suppliers  →  Creatives
+       →  Shopify DRAFT  →  Ad DRAFTS  →  HITL spend  →  Ops
 ```
 
-Skill: **`ai-dropshipping-agency-mcp`** (load when controlling the agency from Hermes).
+| Scale | Count |
+|-------|------:|
+| Agents | **30** |
+| Teams | **12** |
+| Workflows | **11** |
 
-MCP surface:
+Default autonomy **L2**: research and draft aggressively; **humans** approve money and live publish.
 
-- Built-ins: `get_agentos_config`, `run_agent`, `run_team`, `run_workflow`, `continue_run`, `cancel_run`, `get_sessions`, `get_session_runs`
-- Custom: `agency_health`, `agency_roster`, `run_product_rank`, `list_product_rank_reports`, `read_product_rank_report`
+---
 
 ## Quick start
 
 ```bash
-cd ~/src/repos/ai-agency
-source .venv/bin/activate
+cd ai-agency
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp -n .env.example .env
-# PARALLEL_API_KEY required; XAI via Hermes OAuth or XAI_API_KEY
-python -m tools.xai_oauth_pkce login   # optional if using SuperGrok device-code
-./scripts/start_agentos.sh             # http://localhost:7777 + /mcp
+# PARALLEL_API_KEY required; SuperGrok via OAuth or XAI_API_KEY
+python -m tools.xai_oauth_pkce login
+./scripts/start_agentos.sh          # http://127.0.0.1:7777 + /mcp
 ```
 
-## Agents (18)
-
-| Agent | Owns |
-|-------|------|
-| Hermes Ops | Orchestration, priorities, Linear dual-write |
-| Product Scout | Opportunity discovery & scoring |
-| Supplier Sourcer | Vetting, landed cost, backups |
-| Pricing Strategist | Price, bundles, AOV, CM |
-| Brand Strategist | Positioning & voice |
-| Creative Director | UGC concepts & briefs |
-| Listing Specialist | Shopify PDPs |
-| SEO Content | Organic / content hubs |
-| Store Builder | Store IA & UX |
-| Compliance Officer | Claims & ads policy gate |
-| Growth Media Buyer | Paid social ROAS |
-| Influencer Manager | Creator seeding & UGC rights |
-| Email CRM | Lifecycle flows |
-| Customer Success | Macros, returns, reputation |
-| Fulfillment Ops | SLAs & tracking |
-| Inventory Planner | Reorder & stock risk |
-| Analyst | Scorecards & cost control |
-| Finance Controller | Budgets, MER, runway |
-
-## Teams (7)
-
-Agency Director · Research · Supply Chain · Creative · Store Ops · Growth · Retention
-
-## Workflows (5)
-
-1. **Full Product Lifecycle** — research → supply → creative → store/compliance → launch → retention  
-2. **Marketing Launch** — creatives → compliance gate → campaigns  
-3. **Supplier Onboarding** — shortlist → vet → inventory policy  
-4. **Post Purchase Ops** — fulfillment exceptions → CX/retention  
-5. **Weekly Performance Review** — growth + CX + supply → leadership  
-
-## Skills (14 Agno packs)
-
-Loaded via `tools/skills_loader.py` (`LocalSkills`) into agents/teams:
-
-- **agency/** product-scoring, unit-economics, supplier-vetting, roas-guardrails, autonomy-levels, linear-ops  
-- **marketing/** ugc-hooks, creative-briefing, listing-cro, paid-social-structure, email-retention  
-- **ops/** fulfillment-playbook, customer-support-macros, compliance-ads-claims  
-
-Agents use progressive disclosure: `get_skill_instructions` / `get_skill_reference`.
-
-## Tools
-
-- `parallel_tools` — Search, Extract, Task, Entity, Monitor  
-- `xai_oauth_pkce` / `xai_model` — SuperGrok device-code or API key  
-- `economics_tools` — CM & price ladder  
-- `supplier_tools` — supplier scoring  
-- `shopify_tools` — draft products (stub without creds)  
-- `linear_tools` — issues (stub without creds)  
-
-## Agent architecture (SOTA stack)
-
-Each of the 18 agents is thin Python wiring over:
-
-1. **Persona markdown** — `prompts/<agent>/{SOUL,SYSTEM,OUTPUT,EXAMPLES}.md`
-2. **Scoped skills** — only relevant packs from `skills/{agency,marketing,ops,agents}/`
-3. **Role toolbelts** — `tools/toolbelts.py` (not everyone gets full Parallel)
-4. **Pydantic output schemas** — `agents/schemas.py` for typed handoffs
-5. **History + autonomy hooks** — conversational roles keep history; L2 tool guardrails
+### Discover products
 
 ```bash
-# Structural evals (no LLM required)
-PYTHONPATH=. python -m evals.run_agent_evals
+PYTHONPATH=. python -m scripts.autonomous_product_rank \
+  --niche "desk mobility for remote workers" --processor ultra
 ```
 
-Factory: `agents/_factory.py` · Profiles: `agents/profiles.py` · Loader: `agents/prompt_loader.py`
-
-## Enterprise tools & HITL ads
-
-See **[docs/ENTERPRISE_TOOLS.md](docs/ENTERPRISE_TOOLS.md)** for the full lifecycle map (Parallel, Linear, Fal UGC, Shopify, Meta/TikTok, logistics, spend vault).
+### Locate suppliers (next step after rank)
 
 ```bash
-# End-to-end autonomous (no payments / no live ads)
-PYTHONPATH=. python -m scripts.autonomous_lifecycle --niche "desk mobility" --processor ultra --top 3
-
-# HITL spend after drafts exist
-# 1) attach_funding_source / attach_agency_funding_source
-# 2) request_spend_approval
-# 3) human confirm_spend_approval(... "I authorize...")
-# 4) meta_launch_campaign / tiktok_launch_campaign
+PYTHONPATH=. python -m scripts.autonomous_product_locate --top 3 --processor pro
+# or single SKU:
+PYTHONPATH=. python -m scripts.autonomous_product_locate \
+  --product "Fold-Flat Adjustable Aluminum Laptop Stand"
 ```
 
-## Drop universal MCP + ACP gateway
-
-Hybrid control plane at **`drop.autonogrammer.ai`** (local `:7788`):
+### Full draft lifecycle / E2E smoke
 
 ```bash
-systemctl status drop-gateway
-curl -s http://127.0.0.1:7788/health
-# Hermes: mcp_servers.drop → http://127.0.0.1:7788/mcp
+PYTHONPATH=. python -m scripts.autonomous_lifecycle --niche "desk mobility" --processor pro --top 3
+PYTHONPATH=. E2E_SKIP_RESEARCH=1 python -m scripts.e2e_agency_run
 ```
 
-See `drop_server/README.md` for MCP tools, ACP stdio/HTTP, CoT×GoT, nginx/TLS.
+---
 
-## Hermes reverse bridge + KIP memory
+## Control planes
 
-Agno agents call Hermes-class tools via **`:7790`** (`hermes-bridge.service`):
+| Service | Port | Notes |
+|---------|-----:|-------|
+| AgentOS | 7777 | Agents / teams / workflows / MCP |
+| Drop gateway | 7788 | MCP+ACP, Linear, CoT×GoT |
+| Hermes bridge | 7790 | Browser, skills, KIP for Agno |
+| Anda nexus | 8091 | Shared KIP brain |
+| Cockpit UI | 1420 | `agency-cockpit` Vite dev |
+| Docs site | 3400 | `docs-site` Docusaurus |
 
-- Browser (Playwright), skills self-improve proposals, MEMORY.md
-- Shared **KIP** graph (`kip_memory/`) with ICP capsule export
-- See `docs/HERMES_AGNO_BRIDGE.md` and `hermes_bridge/README.md`
+```bash
+systemctl status drop-gateway hermes-bridge anda-nexus
+hermes mcp add ai-agency --url 'http://127.0.0.1:7777/mcp'
+hermes mcp add drop --url 'http://127.0.0.1:7788/mcp'
+```
 
-## Scale (current)
-**30 agents · 12 teams · 10 workflows** — see `docs/AGENCY_EXPANSION_30.md`.
+---
 
-## Agency Cockpit (UI mock)
-React + Tauri v2 generative UI: `agency-cockpit/` — `npm run dev` → http://127.0.0.1:1420
+## How product finding works
 
-## Keys & autonomy
-See `docs/AUTONOMY_AND_KEYS.md` (Linear SWC · spectrumwebco).
+1. **Discover** — Parallel Search + Task builds candidate SKUs; unit economics → GO/TEST/NO-GO  
+2. **Locate** — Parallel finds supplier leads (Alibaba/CJ/wholesale style), scores MOQ/landed cost  
+3. **Dual-write** — Linear SWC issues + GitHub `ai-agency` links  
+4. **Create** — PromptWise/Fal UGC briefs; Shopify **draft** products  
+5. **Grow** — Meta/TikTok campaign **drafts**; spend vault HITL before live ads  
+
+Bi-daily discovery cron: `agency-product-discovery-bidaily` (08:00 + 20:00 UTC).
+
+Deep guides: [docs-site](docs-site/) · `docs/PRODUCT_LOCATE.md` · `docs/AUTONOMY_AND_KEYS.md`
+
+---
+
+## Shopify (AI Dropshipping Agency store)
+
+```bash
+SHOPIFY_SHOP_NAME=aidropshipping          # myshopify subdomain
+SHOPIFY_SHOP_DISPLAY_NAME="AI Dropshipping Agency"
+SHOPIFY_CLIENT_ID=...
+SHOPIFY_CLIENT_SECRET=...                 # Dev Dashboard secret
+```
+
+App must be **installed** on the shop; tokens are minted via client credentials (24h).  
+See `docs-site/docs/getting-started/shopify-setup.md`.
+
+---
+
+## Documentation
+
+| Path | Content |
+|------|---------|
+| **`docs-site/`** | Themed **Docusaurus** site (`npm start` → :3400) |
+| `docs/` | Operator markdown (autonomy, bridge, CI, enterprise tools) |
+| `agency-cockpit/README.md` | Desktop/web UI packaging |
+
+```bash
+cd docs-site && npm install && npm start
+cd docs-site && npm run build    # static build/
+```
+
+---
+
+## Repo layout
+
+```text
+agents/ profiles + thin modules     prompts/ SOUL/SYSTEM/OUTPUT/EXAMPLES
+teams/  12 coordinate teams         workflows/ 11 pipelines
+tools/  Parallel, Shopify, Linear, PromptWise, Fal, spend, ops…
+scripts/ rank, locate, lifecycle, e2e
+drop_server/  hermes_bridge/  kip_memory/
+agency-cockpit/   docs-site/
+```
+
+---
+
+## CI
+
+GitHub Actions: backend structure smoke + cockpit PWA build on every push.  
+https://github.com/swcstudiospace/ai-agency/actions
+
+---
+
+## Safety
+
+- No unsupervised ad spend or supplier payment  
+- Shopify products default to **draft**  
+- Secrets only in `.env` (gitignored)  
+- Rotate any credential pasted in chat

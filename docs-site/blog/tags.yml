@@ -1,0 +1,9 @@
+launch:
+  label: Launch
+  permalink: /launch
+locate:
+  label: Locate
+  permalink: /locate
+shopify:
+  label: Shopify
+  permalink: /shopify

@@ -17,3 +17,6 @@ jobs:
 
   cockpit:
     uses: ./.github/workflows/ci-cockpit.yml
+
+  docs:
+    uses: ./.github/workflows/ci-docs.yml

@@ -28,3 +28,6 @@ agency-cockpit/src-tauri/gen/
 *.pem
 *.key
 secrets/
+docs-site/node_modules/
+docs-site/build/
+docs-site/.docusaurus/
