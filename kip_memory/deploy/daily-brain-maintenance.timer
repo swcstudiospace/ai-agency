@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer for daily Anda brain maintenance (04:15 UTC)
+
+[Timer]
+OnCalendar=*-*-* 04:15:00
+Persistent=true
+Unit=daily-brain-maintenance.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/AgentConstellation.tsx","./src/components/AgentRail.tsx","./src/components/ChatStage.tsx","./src/components/GenUI.tsx","./src/data/agents.ts","./src/data/demo.ts"],"version":"5.8.3"}

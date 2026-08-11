@@ -1,0 +1,63 @@
+name: Agency Cockpit packages
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "agency-cockpit/**"
+    branches: [main, master]
+
+jobs:
+  web-pwa:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agency-cockpit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: agency-cockpit/package-lock.json
+      - run: npm ci || npm install
+      - run: npm run icons
+      - run: npm run build:web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cockpit-web-pwa
+          path: agency-cockpit/dist
+
+  desktop-linux:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agency-cockpit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: agency-cockpit/package-lock.json
+      - name: Install Linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm ci || npm install
+      - run: npm run icons
+      - run: npm run desktop:build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cockpit-desktop-linux
+          path: agency-cockpit/src-tauri/target/release/bundle
+
+  # desktop-macos / desktop-windows / android / ios: enable on self-hosted or macOS/Windows runners
+  # android-build:
+  #   runs-on: ubuntu-latest
+  #   steps: ... tauri android build (needs Android SDK NDK)
+  # ios-build:
+  #   runs-on: macos-latest
+  #   steps: ... tauri ios build (needs Xcode + signing team)

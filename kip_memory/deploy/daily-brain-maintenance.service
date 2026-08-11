@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Anda brain sleep + KIP capsule export
+After=network.target anda-nexus.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/src/repos/ai-agency
+Environment=PYTHONPATH=/root/src/repos/ai-agency
+EnvironmentFile=-/root/src/repos/ai-agency/.env
+ExecStart=/root/src/repos/ai-agency/.venv/bin/python -m scripts.daily_brain_maintenance

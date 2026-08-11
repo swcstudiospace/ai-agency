@@ -1,0 +1,19 @@
+[Unit]
+Description=Drop Autonogrammer MCP+ACP Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/src/repos/ai-agency
+Environment=PYTHONPATH=/root/src/repos/ai-agency
+EnvironmentFile=-/root/src/repos/ai-agency/.env
+EnvironmentFile=-/root/.config/hermes-linear/connector.env
+ExecStart=/root/src/repos/ai-agency/.venv/bin/python -m drop_server.main
+Restart=on-failure
+RestartSec=3
+# Long tool runs (Parallel ultra)
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
