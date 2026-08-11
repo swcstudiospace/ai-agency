@@ -144,6 +144,18 @@ def create_linear_issue(
         "label": label,
     }
     print(f"[Linear] Created {out['identifier']}: {title}")
+    # best-effort link to canonical GitHub repo (ai-agency), not agent_runtime
+    try:
+        gh = link_issue_to_github_repo(
+            issue_id=str(out["id"]),
+            identifier=str(out.get("identifier") or ""),
+            title=title,
+            description=description or "",
+            linear_url=str(out.get("url") or ""),
+        )
+        out["github"] = gh
+    except Exception as e:
+        out["github"] = {"ok": False, "error": str(e)}
     # best-effort kanban mirror
     try:
         mirror = ensure_kanban_card(
@@ -158,8 +170,114 @@ def create_linear_issue(
     return out
 
 
+def link_issue_to_github_repo(
+    *,
+    issue_id: str,
+    identifier: str = "",
+    title: str = "",
+    description: str = "",
+    linear_url: str = "",
+    repo: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Create a GitHub issue on LINEAR_GITHUB_REPO (default swcstudiospace/ai-agency)
+    and attach it on the Linear issue. Avoids default Linear sync to agent_runtime.
+    """
+    import subprocess
+    import urllib.error
+    import urllib.request
+
+    load_dotenv_files()
+    repo = (repo or env("LINEAR_GITHUB_REPO") or "swcstudiospace/ai-agency").strip()
+    if env("LINEAR_GITHUB_LINK", "1").lower() in {"0", "false", "no"}:
+        return {"ok": False, "skipped": True, "reason": "LINEAR_GITHUB_LINK disabled"}
+
+    try:
+        tok = subprocess.check_output(["gh", "auth", "token"], text=True, timeout=15).strip()
+    except Exception as e:
+        return {"ok": False, "error": f"gh auth token failed: {e}"}
+
+    body = (
+        f"Synced from Linear [{identifier or issue_id}]({linear_url}).\n\n"
+        f"{(description or '')[:2500]}\n\n"
+        f"---\n_Canonical agency repo: `{repo}`._\n"
+    )
+    payload = json.dumps(
+        {"title": f"{identifier + ': ' if identifier else ''}{title}"[:250], "body": body}
+    ).encode()
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{repo}/issues",
+        data=payload,
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {tok}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Content-Type": "application/json",
+            "User-Agent": "ai-agency-linear-link",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=45) as resp:
+            gi = json.loads(resp.read().decode())
+    except urllib.error.HTTPError as e:
+        return {"ok": False, "error": f"github create {e.code}: {e.read().decode()[:200]}"}
+
+    gh_url = gi.get("html_url") or ""
+    gh_num = gi.get("number")
+    if not gh_url:
+        return {"ok": False, "error": "no github url", "raw": gi}
+
+    # Drop any existing agent_runtime attachments first
+    try:
+        att = _gql(
+            """query($id: String!) {
+              issue(id: $id) { attachments { nodes { id url title } } }
+            }""",
+            {"id": issue_id},
+        )
+        for a in (((att or {}).get("issue") or {}).get("attachments") or {}).get("nodes") or []:
+            if "agent_runtime" in (a.get("url") or ""):
+                _gql(f'mutation {{ attachmentDelete(id: "{a["id"]}") {{ success }} }}')
+    except Exception:
+        pass
+
+    link = _gql(
+        """mutation($issueId: String!, $url: String!) {
+          attachmentLinkGitHubIssue(issueId: $issueId, url: $url) {
+            success
+            attachment { id title url }
+          }
+        }""",
+        {"issueId": issue_id, "url": gh_url},
+    )
+    success = bool(((link or {}).get("attachmentLinkGitHubIssue") or {}).get("success"))
+    if not success:
+        link = _gql(
+            """mutation($issueId: String!, $url: String!, $title: String!) {
+              attachmentLinkURL(issueId: $issueId, url: $url, title: $title) {
+                success
+                attachment { id title url }
+              }
+            }""",
+            {
+                "issueId": issue_id,
+                "url": gh_url,
+                "title": f"#{gh_num} {title}"[:100],
+            },
+        )
+        success = bool(((link or {}).get("attachmentLinkURL") or {}).get("success"))
+
+    return {
+        "ok": success,
+        "repo": repo,
+        "github_url": gh_url,
+        "github_number": gh_num,
+        "link": link,
+    }
+
+
 def comment_linear_issue(issue_id: str, body: str) -> Dict[str, Any]:
-    """issue_id may be UUID or identifier (SPE-123) — resolves if needed."""
+    """issue_id may be UUID or identifier (SWC-123) — resolves if needed."""
     headers = _headers()
     if not headers:
         print(f"[Linear STUB] comment {issue_id}")
