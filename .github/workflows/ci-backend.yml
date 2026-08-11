@@ -1,0 +1,112 @@
+name: CI — Backend (AgentOS)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "agents/**"
+      - "app/**"
+      - "tools/**"
+      - "teams/**"
+      - "workflows/**"
+      - "scripts/**"
+      - "evals/**"
+      - "prompts/**"
+      - "requirements.txt"
+      - ".github/workflows/ci-backend.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "agents/**"
+      - "app/**"
+      - "tools/**"
+      - "teams/**"
+      - "workflows/**"
+      - "scripts/**"
+      - "evals/**"
+      - "prompts/**"
+      - "requirements.txt"
+      - ".github/workflows/ci-backend.yml"
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ci-backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-structure:
+    name: Python structure + import smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compile Python packages
+        run: |
+          python - <<'PY'
+          import compileall, re, sys
+          roots = ["agents", "app", "tools", "teams", "workflows", "scripts", "evals", "drop_server", "hermes_bridge", "kip_memory"]
+          ok = True
+          for r in roots:
+              ok = compileall.compile_dir(r, quiet=1, force=True) and ok
+          sys.exit(0 if ok else 1)
+          PY
+
+      - name: Import + roster smoke (offline)
+        env:
+          XAI_API_KEY: missing-ci-placeholder
+          AGENCY_GROK_MODEL: grok-4.5
+          AGENCY_DISABLE_HERMES_BRIDGE: "1"
+          AGENCY_DISABLE_ANDA_BRAIN: "1"
+          AGENCY_DISABLE_ANDA_KNOWLEDGE: "1"
+          AGENCY_DISABLE_ANALYTICS: "1"
+          LINEAR_GITHUB_LINK: "0"
+        run: |
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, ".")
+
+          from tools.xai_model import get_grok_model, DEFAULT_GROK_MODEL
+          assert DEFAULT_GROK_MODEL
+          assert getattr(get_grok_model(), "id", None)
+
+          from tools.toolbelts import TOOLBELTS, resolve_toolbelt
+          assert "fal" in TOOLBELTS
+          assert "promptwise" in TOOLBELTS
+          assert resolve_toolbelt(["promptwise"])
+
+          from tools.promptwise_tools import promptwise_status, get_promptwise_tools
+          st = promptwise_status()
+          assert "mode" in st
+          assert get_promptwise_tools()
+
+          from agents.profiles import PROFILES
+          assert len(PROFILES) >= 30, len(PROFILES)
+
+          missing = []
+          for profile in PROFILES:
+              key = getattr(profile, "key", None) or str(profile)
+              for f in ("SOUL.md", "SYSTEM.md", "OUTPUT.md", "EXAMPLES.md"):
+                  p = Path("prompts") / key / f
+                  if not p.is_file():
+                      missing.append(str(p))
+          if missing:
+              raise SystemExit(f"missing persona files: {missing[:12]}")
+          print("ci backend ok", "agents", len(PROFILES), "belts", len(TOOLBELTS), "promptwise_mode", st.get("mode"))
+          PY

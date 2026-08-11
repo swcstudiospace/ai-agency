@@ -29,6 +29,7 @@ from tools.parallel_tools import (
     parallel_task_result,
 )
 from tools.partnership_ops_tools import get_partnership_ops_tools
+from tools.promptwise_tools import get_promptwise_tools
 from tools.qa_ops_tools import get_qa_ops_tools
 from tools.returns_ops_tools import get_returns_ops_tools
 from tools.shopify_tools import get_shopify_tools
@@ -59,12 +60,13 @@ TOOLBELTS: Dict[str, List[Any]] = {
     "supplier": get_supplier_tools(),
     "shopify": get_shopify_tools(),
     "fal": get_fal_tools(),
+    "promptwise": get_promptwise_tools(),
     "meta_ads": get_meta_tools(),
     "tiktok_ads": get_tiktok_tools(),
     "logistics": get_logistics_tools(),
     "spend": get_spend_tools(),
     "ads_full": get_meta_tools() + get_tiktok_tools() + get_spend_tools(),
-    "creative_prod": get_fal_tools() + get_shopify_tools(),
+    "creative_prod": get_fal_tools() + get_promptwise_tools() + get_shopify_tools(),
     "hermes_bridge": get_hermes_bridge_tools(),
     "anda_brain": get_anda_brain_tools(),
     "analytics": get_analytics_tools(),
@@ -74,7 +76,7 @@ TOOLBELTS: Dict[str, List[Any]] = {
     "chargeback_ops": get_chargeback_ops_tools(),
     "cx_ops": get_cx_ops_tools(),
     "logistics_ops": get_logistics_ops_tools(),
-    "creative_ops": get_creative_ops_tools(),
+    "creative_ops": get_creative_ops_tools() + get_promptwise_tools() + get_fal_tools(),
     "catalog_ops": get_catalog_ops_tools(),
     "fraud_ops": get_fraud_ops_tools(),
     "partnership_ops": get_partnership_ops_tools(),

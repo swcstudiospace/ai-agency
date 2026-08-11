@@ -1,0 +1,98 @@
+name: CI — Agency Cockpit (Web / Tauri prep)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "agency-cockpit/**"
+      - ".github/workflows/ci-cockpit.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "agency-cockpit/**"
+      - ".github/workflows/ci-cockpit.yml"
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ci-cockpit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web-pwa:
+    name: Vite PWA build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: agency-cockpit
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: agency-cockpit/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Icons
+        run: npm run icons
+
+      - name: Typecheck + production build
+        run: npm run build:web
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agency-cockpit-dist
+          path: agency-cockpit/dist
+          if-no-files-found: error
+          retention-days: 14
+
+  # Desktop Tauri build is Linux-only in CI for now (deb). macOS/Windows need runners.
+  desktop-linux:
+    name: Tauri Linux bundle (optional)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    needs: web-pwa
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[tauri]')
+    defaults:
+      run:
+        working-directory: agency-cockpit
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: agency-cockpit/package-lock.json
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Linux WebKit deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev \
+            libglib2.0-dev pkg-config xdg-utils
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Tauri build (deb)
+        run: npm run desktop:build:deb
+
+      - name: Upload deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: agency-cockpit-deb
+          path: agency-cockpit/src-tauri/target/release/bundle/deb/*.deb
+          if-no-files-found: warn
+          retention-days: 14
