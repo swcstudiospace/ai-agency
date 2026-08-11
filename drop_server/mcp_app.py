@@ -145,16 +145,22 @@ def drop_health() -> Dict[str, Any]:
 def drop_roster() -> Dict[str, Any]:
     """Agency agent/team/workflow ids for routing."""
     return {
-            return {
-        "counts": {"agents": 30, "teams": 12, "workflows": [
+        "counts": {"agents": 30, "teams": 12, "workflows": 10},
+        "workflows": [
             "full-product-lifecycle",
             "marketing-launch",
             "supplier-onboarding",
             "post-purchase-ops",
             "weekly-performance-review",
+            "incident-response-ops",
+            "returns-rma-pipeline",
+            "creative-production-ops",
+            "experimentation-cycle",
+            "logistics-exception-handling",
         ],
         "agentos_mcp": "http://127.0.0.1:7777/mcp",
-        "drop_mcp": "https://drop.autonogrammer.ai/mcp",
+        "drop_mcp": "http://127.0.0.1:7788/mcp",
+        "github": "https://github.com/swcstudiospace/ai-agency",
     }
 
 
