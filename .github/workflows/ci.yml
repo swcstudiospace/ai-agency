@@ -11,6 +11,11 @@ concurrency:
   group: ci-all-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
   backend:
     uses: ./.github/workflows/ci-backend.yml
@@ -28,8 +33,59 @@ jobs:
     uses: ./.github/workflows/ci-security.yml
 
   coderabbit:
-    uses: ./.github/workflows/ci-coderabbit.yml
-    secrets: inherit
+    name: CodeRabbit CLI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install CodeRabbit CLI
+        env:
+          CI: "1"
+        run: |
+          curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          coderabbit --version || cr --version
+      - name: Validate config
+        run: coderabbit config validate || cr config validate || true
+      - name: Review
+        env:
+          CODERABBIT_API_KEY: ${{ secrets.CODERABBIT_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CODERABBIT_API_KEY:-}" ]; then
+            echo "::notice::CODERABBIT_API_KEY not set — install/validate only (set Agentic API key secret for full reviews)."
+            coderabbit doctor || true
+            exit 0
+          fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.ref }}"
+          else
+            BASE="main"
+          fi
+          echo "base=$BASE"
+          set +e
+          coderabbit review --agent --base "$BASE" --api-key "$CODERABBIT_API_KEY" | tee coderabbit-review.ndjson
+          set -e
+          coderabbit review --base "$BASE" --api-key "$CODERABBIT_API_KEY" > coderabbit-review.txt || true
+          if command -v jq >/dev/null 2>&1 && [ -s coderabbit-review.ndjson ]; then
+            crit=$(jq -r 'select(.type=="finding" and .severity=="critical")' coderabbit-review.ndjson | wc -l | tr -d ' ')
+            echo "critical_findings=$crit"
+            if [ "${crit:-0}" -gt 0 ]; then
+              echo "::error::$crit critical CodeRabbit findings"
+              exit 1
+            fi
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coderabbit-review
+          path: |
+            coderabbit-review.ndjson
+            coderabbit-review.txt
+          if-no-files-found: ignore
+          retention-days: 14
 
   ci-success:
     name: All CI gates green
