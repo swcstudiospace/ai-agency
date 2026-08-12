@@ -29,6 +29,7 @@ jobs:
 
   coderabbit:
     uses: ./.github/workflows/ci-coderabbit.yml
+    secrets: inherit
 
   ci-success:
     name: All CI gates green

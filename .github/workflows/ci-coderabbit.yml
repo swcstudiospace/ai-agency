@@ -22,7 +22,6 @@ jobs:
     name: CodeRabbit CLI review
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Runs on PRs always; on push/main only when API key present (optional)
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,30 +39,36 @@ jobs:
         run: |
           coderabbit config validate || cr config validate || true
 
+      - name: Resolve base branch
+        id: base
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "ref=${{ github.event.pull_request.base.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=main" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: CodeRabbit review (agent JSON)
         env:
           CODERABBIT_API_KEY: ${{ secrets.CODERABBIT_API_KEY }}
+          BASE: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
           if [ -z "${CODERABBIT_API_KEY:-}" ]; then
-            echo "::notice::CODERABBIT_API_KEY secret not set — installing CLI + config validate only."
+            echo "::notice::CODERABBIT_API_KEY secret not set — CLI install + config validate only."
             echo "Add repo secret CODERABBIT_API_KEY (Agentic API key) for full headless reviews."
             coderabbit doctor || true
             exit 0
           fi
-          BASE="${{ github.event.pull_request.base.ref || 'main' }}"
           echo "Reviewing against base=$BASE"
-          # Agent-readable stream for logs + artifact
           set +e
           coderabbit review --agent --base "$BASE" --api-key "$CODERABBIT_API_KEY" \
             | tee coderabbit-review.ndjson
           code=${PIPESTATUS[0]}
           set -e
-          # Also plain summary for humans
           coderabbit review --base "$BASE" --api-key "$CODERABBIT_API_KEY" \
             > coderabbit-review.txt || true
           echo "coderabbit_exit=$code"
-          # Fail CI on critical findings if jq available
           if command -v jq >/dev/null 2>&1 && [ -f coderabbit-review.ndjson ]; then
             crit=$(jq -r 'select(.type=="finding" and .severity=="critical")' coderabbit-review.ndjson | wc -l | tr -d ' ')
             echo "critical_findings=$crit"
@@ -85,13 +90,11 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # GitHub App reviews on PRs (when CodeRabbit GitHub App is installed)
-  # Enable as required check "coderabbitai" in branch protection once the app has run once.
   notice:
     name: CodeRabbit GitHub App note
     runs-on: ubuntu-latest
     steps:
       - name: Branch protection hint
         run: |
-          echo "Install https://github.com/apps/coderabbitai on this repo for PR Check 'coderabbitai'."
+          echo "Install https://github.com/apps/coderabbitai on this repo for PR Check coderabbitai."
           echo "Require status checks: All CI gates green + coderabbitai (optional)."
