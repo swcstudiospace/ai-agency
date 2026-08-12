@@ -32,6 +32,8 @@ from tools.partnership_ops_tools import get_partnership_ops_tools
 from tools.promptwise_tools import get_promptwise_tools
 from tools.qa_ops_tools import get_qa_ops_tools
 from tools.returns_ops_tools import get_returns_ops_tools
+from tools.seller_outreach_tools import get_outreach_tools
+from tools.shipping_pipeline_tools import get_shipping_pipeline_tools
 from tools.shopify_tools import get_shopify_tools
 from tools.spend_vault import get_spend_tools
 from tools.supplier_tools import get_supplier_tools
@@ -57,13 +59,15 @@ TOOLBELTS: Dict[str, List[Any]] = {
     "parallel_light": _parallel_light(),
     "economics": get_economics_tools(),
     "linear": get_linear_tools(),
-    "supplier": get_supplier_tools(),
+    "supplier": get_supplier_tools() + get_outreach_tools(),
     "shopify": get_shopify_tools(),
     "fal": get_fal_tools(),
     "promptwise": get_promptwise_tools(),
     "meta_ads": get_meta_tools(),
     "tiktok_ads": get_tiktok_tools(),
-    "logistics": get_logistics_tools(),
+    "logistics": get_logistics_tools() + get_shipping_pipeline_tools(),
+    "outreach": get_outreach_tools(),
+    "shipping_pipeline": get_shipping_pipeline_tools(),
     "spend": get_spend_tools(),
     "ads_full": get_meta_tools() + get_tiktok_tools() + get_spend_tools(),
     "creative_prod": get_fal_tools() + get_promptwise_tools() + get_shopify_tools(),
@@ -75,7 +79,7 @@ TOOLBELTS: Dict[str, List[Any]] = {
     "returns_ops": get_returns_ops_tools(),
     "chargeback_ops": get_chargeback_ops_tools(),
     "cx_ops": get_cx_ops_tools(),
-    "logistics_ops": get_logistics_ops_tools(),
+    "logistics_ops": get_logistics_ops_tools() + get_shipping_pipeline_tools(),
     "creative_ops": get_creative_ops_tools() + get_promptwise_tools() + get_fal_tools(),
     "catalog_ops": get_catalog_ops_tools(),
     "fraud_ops": get_fraud_ops_tools(),

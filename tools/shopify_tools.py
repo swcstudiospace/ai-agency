@@ -262,6 +262,123 @@ def create_draft_order(
         return client.post(url, headers=headers, json=payload).json()
 
 
+def shopify_domain_plan(primary_domain: str = "") -> Dict[str, Any]:
+    """DNS + Shopify domain attach plan for brand domain (e.g. ego.engineer)."""
+    domain = (primary_domain or env("AGENCY_PRIMARY_DOMAIN") or env("SHOPIFY_PRIMARY_DOMAIN") or "ego.engineer").strip()
+    host = _shop_host() or "YOUR-STORE.myshopify.com"
+    return {
+        "ok": True,
+        "primary_domain": domain,
+        "myshopify_host": host,
+        "shopify_admin_path": "Settings → Domains → Connect existing domain",
+        "dns_records_typical": [
+            {
+                "type": "A",
+                "host": "@",
+                "value": "23.227.38.65",
+                "note": "Shopify apex IPv4 (confirm in admin — Shopify may update)",
+            },
+            {
+                "type": "AAAA",
+                "host": "@",
+                "value": "2620:0127:f00f:5::",
+                "note": "Shopify apex IPv6 if offered",
+            },
+            {
+                "type": "CNAME",
+                "host": "www",
+                "value": "shops.myshopify.com",
+                "note": "www → Shopify",
+            },
+            {
+                "type": "CNAME",
+                "host": "shop",
+                "value": host,
+                "note": "optional shop subdomain",
+            },
+        ],
+        "oxygen_notes": [
+            "Headless Hydrogen on Oxygen uses its own deploy domain first",
+            f"Then attach {domain} (or store.{domain}) as custom domain in Oxygen/Shopify",
+            "Storefront API + Customer Account API tokens required for headless",
+        ],
+        "hitl": True,
+        "note": "DNS at registrar for ego.engineer is human-owned — agency cannot change DNS without credentials",
+    }
+
+
+def shopify_bootstrap_checklist() -> Dict[str, Any]:
+    """Bare-account → launch checklist for AI Dropshipping Agency / ego.engineer."""
+    status = shopify_status()
+    domain = env("AGENCY_PRIMARY_DOMAIN") or "ego.engineer"
+    return {
+        "ok": True,
+        "shopify_status": {
+            "ok": status.get("ok"),
+            "mode": status.get("mode"),
+            "shop": status.get("shop") or status.get("shop_host"),
+            "reason": status.get("reason"),
+        },
+        "checklist": [
+            "1. Dev Dashboard: install app on the shop with write_products, write_draft_orders, read_orders, write_fulfillments",
+            "2. Confirm SHOPIFY_SHOP_NAME matches admin URL subdomain",
+            "3. Settings → Payments: enable test mode first",
+            "4. Settings → Shipping: general profile + international rates",
+            "5. Settings → Policies: refund, privacy, TOS, shipping",
+            f"6. Settings → Domains: connect {domain} (see shopify_domain_plan)",
+            "7. Settings → Checkout: customer contact email + order notifications",
+            "8. Online Store OR headless: create Storefront API token for Oxygen/Hydrogen",
+            "9. Create draft product via agency E2E (status=draft)",
+            "10. Place test order in Bogus Gateway before live ads",
+        ],
+        "headless": {
+            "stack": "Shopify Hydrogen + Oxygen",
+            "repo_path": "storefront-oxygen/",
+            "env": [
+                "PUBLIC_STORE_DOMAIN",
+                "PUBLIC_STOREFRONT_API_TOKEN",
+                "PRIVATE_STOREFRONT_API_TOKEN",
+                "PUBLIC_STOREFRONT_API_VERSION",
+            ],
+        },
+        "domain_plan": shopify_domain_plan(domain),
+        "hitl": True,
+    }
+
+
+def shopify_create_policy_pages(
+    shipping_html: str = "",
+    refund_html: str = "",
+    privacy_html: str = "",
+) -> Dict[str, Any]:
+    """Create basic policy pages as drafts (live requires auth + HITL publish)."""
+    brand = env("SHOPIFY_SHOP_DISPLAY_NAME") or "AI Dropshipping Agency"
+    domain = env("AGENCY_PRIMARY_DOMAIN") or "ego.engineer"
+    defaults = {
+        "Shipping Policy": shipping_html
+        or f"<p>{brand} ships internationally. Processing within 48 hours. Delivery estimates shown at checkout. Tracking provided when available. Domain: {domain}</p>",
+        "Refund Policy": refund_html
+        or f"<p>Contact support within 14 days of delivery for damaged/defective items. Opened consumables may be non-returnable. {brand}</p>",
+        "Privacy Policy": privacy_html
+        or f"<p>{brand} collects order and contact data to fulfill purchases. We do not sell personal data. Contact privacy@{domain}</p>",
+    }
+    created = []
+    cfg = _shop_config()
+    for title, body in defaults.items():
+        if not cfg:
+            created.append({"title": title, "stub": True, "body_html": body[:120]})
+            continue
+        host, token = cfg
+        payload = {"page": {"title": title, "body_html": body, "published": False}}
+        url = f"https://{host}/admin/api/{API_VERSION}/pages.json"
+        headers = {"X-Shopify-Access-Token": token, "Content-Type": "application/json"}
+        with httpx.Client(timeout=45.0) as client:
+            r = client.post(url, headers=headers, json=payload)
+            data = r.json() if r.content else {}
+        created.append(data.get("page") or {"error": data, "status_code": r.status_code, "title": title})
+    return {"ok": True, "pages": created, "stub": not bool(cfg), "hitl_publish": True}
+
+
 def get_shopify_tools() -> list:
     return [
         shopify_status,
@@ -270,4 +387,7 @@ def get_shopify_tools() -> list:
         list_products,
         list_orders,
         create_draft_order,
+        shopify_domain_plan,
+        shopify_bootstrap_checklist,
+        shopify_create_policy_pages,
     ]

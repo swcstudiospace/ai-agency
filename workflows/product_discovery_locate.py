@@ -8,8 +8,8 @@ from teams.supply_chain_team import supply_chain_team
 product_discovery_locate_workflow = Workflow(
     name="Product Discovery & Locate",
     description=(
-        "Rank dropshipping opportunities, then LOCATE real suppliers "
-        "(Parallel search/task + supplier scorecards). HITL before samples/POs."
+        "Rank dropshipping opportunities, LOCATE suppliers, then prepare "
+        "outreach + shipping pipeline (scripts.autonomous_post_locate). HITL before samples/POs."
     ),
     steps=[
         Step(
@@ -27,6 +27,14 @@ product_discovery_locate_workflow = Workflow(
                 "For each GO/TEST SKU, call locate_suppliers_for_product / "
                 "scripts.autonomous_product_locate. Build supplier shortlist, "
                 "landed cost, MOQ, sample plan. Dual-write Linear. No PO payments."
+            ),
+        ),
+        Step(
+            name="Outreach + Shipping Plan",
+            team=supply_chain_team,
+            description=(
+                "scripts.autonomous_post_locate: draft sample emails, optional Gmail compose, "
+                "design_shipping_pipeline, Shopify bootstrap + ego.engineer domain plan."
             ),
         ),
     ],

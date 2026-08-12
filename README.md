@@ -53,6 +53,19 @@ PYTHONPATH=. python -m scripts.autonomous_product_locate \
   --product "Fold-Flat Adjustable Aluminum Laptop Stand"
 ```
 
+
+### Post-locate (outreach + shipping)
+
+```bash
+PYTHONPATH=. python -m scripts.autonomous_post_locate --top-suppliers 2
+# optional Gmail compose (HITL send):
+PYTHONPATH=. python -m scripts.autonomous_post_locate --open-gmail
+```
+
+Contact top sellers **and** set up shipping/order routing. Domain: **ego.engineer**. Headless: `storefront-oxygen/`.
+
+Discovery cron: **every 4 hours** (`0 */4 * * *` UTC) — rank → locate → post_locate.
+
 ### Full draft lifecycle / E2E smoke
 
 ```bash

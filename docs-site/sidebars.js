@@ -29,6 +29,7 @@ const sidebars = {
       items: [
         "guides/product-discovery",
         "guides/product-locate",
+        "guides/post-locate-fulfillment",
         "guides/dropshipping-lifecycle",
         "guides/ugc-promptwise",
         "guides/hitl-spend",

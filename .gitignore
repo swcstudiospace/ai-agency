@@ -31,3 +31,7 @@ secrets/
 docs-site/node_modules/
 docs-site/build/
 docs-site/.docusaurus/
+storefront-oxygen/node_modules/
+storefront-oxygen/dist/
+tmp/outreach/
+tmp/shipping/

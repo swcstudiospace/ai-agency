@@ -60,6 +60,7 @@ from workflows.full_product_lifecycle import full_product_lifecycle_workflow
 from workflows.incident_response_ops import incident_response_ops_workflow
 from workflows.logistics_exception_handling import logistics_exception_handling_workflow
 from workflows.marketing_launch import marketing_launch_workflow
+from workflows.post_locate_fulfillment import post_locate_fulfillment_workflow
 from workflows.post_purchase_ops import post_purchase_ops_workflow
 from workflows.product_discovery_locate import product_discovery_locate_workflow
 from workflows.returns_rma_pipeline import returns_rma_pipeline_workflow
@@ -92,8 +93,8 @@ agent_os = AgentOS(
     id="ai-dropshipping-agency",
     name="AI Dropshipping Agency",
     description=(
-        "Enterprise AI Dropshipping Agency — 30 agents / 12 teams / 11 workflows "
-        "(research → locate → ops → retention). Grok + Parallel. Hermes control via /mcp."
+        "Enterprise AI Dropshipping Agency — 30 agents / 12 teams / 12 workflows "
+        "(research → locate → outreach/shipping → ops). Grok + Parallel. Hermes control via /mcp."
     ),
     agents=[
         hermes_ops,
@@ -144,6 +145,7 @@ agent_os = AgentOS(
     ],
     workflows=[
         product_discovery_locate_workflow,
+        post_locate_fulfillment_workflow,
         full_product_lifecycle_workflow,
         marketing_launch_workflow,
         supplier_onboarding_workflow,
