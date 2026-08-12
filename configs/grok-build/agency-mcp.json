@@ -9,5 +9,6 @@
     "hermes-bridge": {
       "url": "http://127.0.0.1:7790/mcp"
     }
-  }
+  },
+  "notes": "Wire these into ~/.grok/config.toml [mcp_servers.*] if your Grok Build build supports URL MCP. Agency tools also call AgentOS directly via Python."
 }

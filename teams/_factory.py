@@ -1,4 +1,4 @@
-"""Team builders with scoped skills, markdown instructions, and Warp bottom layer."""
+"""Team builders with scoped skills, markdown instructions, and Grok Build bottom layer."""
 
 from __future__ import annotations
 
@@ -15,11 +15,12 @@ from tools.xai_model import get_grok_model
 _ROOT = Path(__file__).resolve().parents[1]
 _TEAM_PROMPTS = _ROOT / "prompts" / "teams"
 
-_WARP_TEAM_BLURB = """
-## Warp bottom layer (teams)
-Coordinate members so multi-step shell/coding work is **offloaded to Warp Oz** via
-`warp_agent_run` / `warp_orchestrate_agency_task` / `warp_offload_shell`.
-Stack: Hermes → Agno team → Warp CLI. Do not reinvent orchestration loops.
+_GROK_BUILD_TEAM_BLURB = """
+## Grok Build bottom layer (teams)
+Coordinate members so multi-step shell/coding work is **offloaded to Grok Build** via
+`grok_build_run` / `grok_build_orchestrate_agency_task` / `grok_build_offload_shell`.
+Stack: Hermes → Agno team → Grok Build (SuperGrok). Do not reinvent orchestration loops.
+Do not use Warp/Oz — removed.
 """.strip()
 
 
@@ -29,7 +30,7 @@ def _team_instructions(key: str, fallback: Sequence[str]) -> list[str]:
         base = [path.read_text(encoding="utf-8").strip()]
     else:
         base = list(fallback)
-    base.append(_WARP_TEAM_BLURB)
+    base.append(_GROK_BUILD_TEAM_BLURB)
     return base
 
 
@@ -47,7 +48,7 @@ def build_team(
     try:
         from tools.toolbelts import resolve_toolbelt
 
-        tools = resolve_toolbelt(["warp", "coderabbit", "linear"])
+        tools = resolve_toolbelt(["grok_build", "coderabbit", "linear"])
     except Exception:
         tools = None
 

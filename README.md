@@ -97,27 +97,28 @@ hermes mcp add drop --url 'http://127.0.0.1:7788/mcp'
 ---
 
 
-## Execution stack (Hermes → Agno → Warp)
+## Execution stack (Hermes → Agno → Grok Build)
 
 ```text
-Hermes Agent (top)  →  Agno AgentOS (middle)  →  Warp Oz CLI (bottom)
+Hermes Agent (top)  →  Agno AgentOS (middle)  →  Grok Build CLI (bottom · SuperGrok)
                                               →  CodeRabbit CLI (review)
 ```
 
-Every agent auto-gets toolbelts **`warp`** + **`coderabbit`** (see `agents/_factory.py`).
-Prefer `warp_agent_run` / `warp_offload_shell` for multi-step terminal work.
-Docs: [`docs/WARP_AND_CODERABBIT.md`](docs/WARP_AND_CODERABBIT.md) · config `configs/warp/`.
+Every agent auto-gets toolbelts **`grok_build`** + **`coderabbit`** (see `agents/_factory.py`).
+Prefer `grok_build_run` / `grok_build_offload_shell` for multi-step terminal work.
+Docs: [`docs/GROK_BUILD_AND_CODERABBIT.md`](docs/GROK_BUILD_AND_CODERABBIT.md) · config `configs/grok-build/`.
 
 ```bash
-# Oz CLI auth (bottom layer)
-export WARP_API_KEY=wk-...   # or: oz login
-oz agent run --prompt "summarize this repo" -C .
+# Grok Build (bottom layer — SuperGrok subscription)
+export PATH="$HOME/.grok/bin:$PATH"
+# Auth: already logged in via SuperGrok, or: export XAI_API_KEY=xai-...
+grok -p "summarize this repo" --always-approve --max-turns 3
 
-# Showcase: agents drive Warp in the autonomous dropshipping loop
-PYTHONPATH=. python -m scripts.showcase_warp_dropshipping_flow --skip-locate
-# After oz login — also runs live Oz agent:
-PYTHONPATH=. python -m scripts.showcase_warp_dropshipping_flow --try-oz-agent
-# Report: tmp/runs/warp_dropshipping_showcase_*.md + tmp/warp_runs/
+# Showcase: agents drive Grok Build in the autonomous dropshipping loop
+PYTHONPATH=. python -m scripts.showcase_grok_build_dropshipping_flow --skip-locate
+# Live headless Grok Build agent turn:
+PYTHONPATH=. python -m scripts.showcase_grok_build_dropshipping_flow --try-grok-agent
+# Report: tmp/runs/grok_build_dropshipping_showcase_*.md + tmp/grok_build_runs/
 
 # CodeRabbit local review
 coderabbit review --agent --base main
@@ -195,7 +196,7 @@ Hermes job **`agency-product-discovery-6x`** · `0 */4 * * *` UTC (6×/day):
 ```text
 agents/ profiles + thin modules     prompts/ SOUL/SYSTEM/OUTPUT/EXAMPLES
 teams/  12 coordinate teams         workflows/ 12 pipelines
-tools/  Parallel, Shopify, Linear, Warp/Oz, CodeRabbit, outreach, shipping, PromptWise, Fal, spend…
+tools/  Parallel, Shopify, Linear, Grok Build, CodeRabbit, outreach, shipping, PromptWise, Fal, spend…
 scripts/ rank, locate, post_locate, lifecycle, e2e, check_readme_freshness
 tests/   pytest unit + registry     evals/ structural agent evals
 drop_server/  hermes_bridge/  kip_memory/

@@ -96,7 +96,7 @@ agent_os = AgentOS(
     name="AI Dropshipping Agency",
     description=(
         "Enterprise AI Dropshipping Agency — 30 agents / 12 teams / 12 workflows. "
-        "Stack: Hermes → Agno → Warp Oz CLI. Grok + Parallel. CodeRabbit in CI."
+        "Stack: Hermes → Agno → Grok Build. SuperGrok + Parallel. CodeRabbit in CI."
     ),
     agents=[
         hermes_ops,

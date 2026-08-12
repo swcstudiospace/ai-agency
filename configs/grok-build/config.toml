@@ -1,0 +1,9 @@
+# Optional project-local Grok Build overrides (merged with ~/.grok/config.toml)
+
+# SuperGrok API-key path exposes chat models (e.g. grok-4.5).
+# CLI-only ids like "grok-build" may not appear under XAI_API_KEY — leave default to CLI.
+[models]
+default = "grok-4.5"
+
+[ui]
+permission_mode = "always-approve"

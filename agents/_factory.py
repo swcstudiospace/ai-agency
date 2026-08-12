@@ -50,13 +50,13 @@ def build_agent(
         "yes",
     }:
         belts.append("hermes_bridge")
-    # Warp / Oz bottom CLI layer — all agents can offload shell + coding agents
-    if "warp" not in belts and os.getenv("AGENCY_DISABLE_WARP", "").lower() not in {
+    # Grok Build bottom CLI layer — all agents can offload shell + coding agents
+    if "grok_build" not in belts and os.getenv("AGENCY_DISABLE_GROK_BUILD", "").lower() not in {
         "1",
         "true",
         "yes",
     }:
-        belts.append("warp")
+        belts.append("grok_build")
     # CodeRabbit review tools (optional belt — always on unless disabled)
     if "coderabbit" not in belts and os.getenv("AGENCY_DISABLE_CODERABBIT", "").lower() not in {
         "1",
@@ -83,16 +83,16 @@ def build_agent(
     if extra_tools:
         tools.extend(extra_tools)
 
-    # Warp offload guidance injected into every agent
-    warp_extra: list[str] = []
+    # Grok Build offload guidance injected into every agent
+    gb_extra: list[str] = []
     try:
-        from tools.warp_tools import WARP_OFFLOAD_INSTRUCTIONS
+        from tools.grok_build_tools import GROK_BUILD_OFFLOAD_INSTRUCTIONS
 
-        if "warp" in belts:
-            warp_extra.append(WARP_OFFLOAD_INSTRUCTIONS)
+        if "grok_build" in belts:
+            gb_extra.append(GROK_BUILD_OFFLOAD_INSTRUCTIONS)
     except Exception:
         pass
-    merged_extra = list(extra_instructions or []) + warp_extra
+    merged_extra = list(extra_instructions or []) + gb_extra
     instructions = build_instructions(persona, extra=merged_extra or None)
     expected_output = build_expected_output(persona)
     additional_input = build_additional_input(persona)
@@ -134,7 +134,6 @@ def build_agent(
             fs_k = get_anda_filesystem_knowledge()
             if fs_k is not None:
                 kwargs["knowledge"] = fs_k
-                # enable agent knowledge tools (grep_file, list_files, get_file)
                 kwargs["search_knowledge"] = True
         except Exception:
             pass
