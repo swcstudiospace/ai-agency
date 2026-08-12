@@ -90,3 +90,13 @@ warp_orchestrate_agency_task(
     mode="local",
 )
 ```
+
+## Showcase (autonomous dropshipping × Warp)
+
+```bash
+PYTHONPATH=. python -m scripts.showcase_warp_dropshipping_flow --skip-locate
+# Live Oz multi-step agent (requires oz login / WARP_API_KEY):
+PYTHONPATH=. python -m scripts.showcase_warp_dropshipping_flow --try-oz-agent
+```
+
+Produces `tmp/runs/warp_dropshipping_showcase_*.{md,json}` and audited `tmp/warp_runs/shell_*.json`.

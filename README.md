@@ -113,6 +113,12 @@ Docs: [`docs/WARP_AND_CODERABBIT.md`](docs/WARP_AND_CODERABBIT.md) · config `co
 export WARP_API_KEY=wk-...   # or: oz login
 oz agent run --prompt "summarize this repo" -C .
 
+# Showcase: agents drive Warp in the autonomous dropshipping loop
+PYTHONPATH=. python -m scripts.showcase_warp_dropshipping_flow --skip-locate
+# After oz login — also runs live Oz agent:
+PYTHONPATH=. python -m scripts.showcase_warp_dropshipping_flow --try-oz-agent
+# Report: tmp/runs/warp_dropshipping_showcase_*.md + tmp/warp_runs/
+
 # CodeRabbit local review
 coderabbit review --agent --base main
 ```
