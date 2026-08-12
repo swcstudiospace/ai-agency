@@ -96,6 +96,29 @@ hermes mcp add drop --url 'http://127.0.0.1:7788/mcp'
 
 ---
 
+
+## Execution stack (Hermes → Agno → Warp)
+
+```text
+Hermes Agent (top)  →  Agno AgentOS (middle)  →  Warp Oz CLI (bottom)
+                                              →  CodeRabbit CLI (review)
+```
+
+Every agent auto-gets toolbelts **`warp`** + **`coderabbit`** (see `agents/_factory.py`).
+Prefer `warp_agent_run` / `warp_offload_shell` for multi-step terminal work.
+Docs: [`docs/WARP_AND_CODERABBIT.md`](docs/WARP_AND_CODERABBIT.md) · config `configs/warp/`.
+
+```bash
+# Oz CLI auth (bottom layer)
+export WARP_API_KEY=wk-...   # or: oz login
+oz agent run --prompt "summarize this repo" -C .
+
+# CodeRabbit local review
+coderabbit review --agent --base main
+```
+
+CI: `.github/workflows/ci-coderabbit.yml` (set secret `CODERABBIT_API_KEY`).
+
 ## CI/CD
 
 **SOTA multi-gate pipeline** (not ad-hoc smoke):
@@ -166,7 +189,7 @@ Hermes job **`agency-product-discovery-6x`** · `0 */4 * * *` UTC (6×/day):
 ```text
 agents/ profiles + thin modules     prompts/ SOUL/SYSTEM/OUTPUT/EXAMPLES
 teams/  12 coordinate teams         workflows/ 12 pipelines
-tools/  Parallel, Shopify, Linear, outreach, shipping, PromptWise, Fal, spend…
+tools/  Parallel, Shopify, Linear, Warp/Oz, CodeRabbit, outreach, shipping, PromptWise, Fal, spend…
 scripts/ rank, locate, post_locate, lifecycle, e2e, check_readme_freshness
 tests/   pytest unit + registry     evals/ structural agent evals
 drop_server/  hermes_bridge/  kip_memory/

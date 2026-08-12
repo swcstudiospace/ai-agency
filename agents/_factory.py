@@ -50,6 +50,20 @@ def build_agent(
         "yes",
     }:
         belts.append("hermes_bridge")
+    # Warp / Oz bottom CLI layer — all agents can offload shell + coding agents
+    if "warp" not in belts and os.getenv("AGENCY_DISABLE_WARP", "").lower() not in {
+        "1",
+        "true",
+        "yes",
+    }:
+        belts.append("warp")
+    # CodeRabbit review tools (optional belt — always on unless disabled)
+    if "coderabbit" not in belts and os.getenv("AGENCY_DISABLE_CODERABBIT", "").lower() not in {
+        "1",
+        "true",
+        "yes",
+    }:
+        belts.append("coderabbit")
     # Anda Brain formation/recall/sleep + docs grep
     if "anda_brain" not in belts and os.getenv("AGENCY_DISABLE_ANDA_BRAIN", "").lower() not in {
         "1",
@@ -69,7 +83,17 @@ def build_agent(
     if extra_tools:
         tools.extend(extra_tools)
 
-    instructions = build_instructions(persona, extra=extra_instructions)
+    # Warp offload guidance injected into every agent
+    warp_extra: list[str] = []
+    try:
+        from tools.warp_tools import WARP_OFFLOAD_INSTRUCTIONS
+
+        if "warp" in belts:
+            warp_extra.append(WARP_OFFLOAD_INSTRUCTIONS)
+    except Exception:
+        pass
+    merged_extra = list(extra_instructions or []) + warp_extra
+    instructions = build_instructions(persona, extra=merged_extra or None)
     expected_output = build_expected_output(persona)
     additional_input = build_additional_input(persona)
 

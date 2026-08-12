@@ -27,11 +27,13 @@ jobs:
   security:
     uses: ./.github/workflows/ci-security.yml
 
-  # Aggregate gate — required status for branch protection
+  coderabbit:
+    uses: ./.github/workflows/ci-coderabbit.yml
+
   ci-success:
     name: All CI gates green
     runs-on: ubuntu-latest
-    needs: [backend, cockpit, docs, storefront, security]
+    needs: [backend, cockpit, docs, storefront, security, coderabbit]
     if: always()
     steps:
       - name: Check matrix
@@ -41,10 +43,10 @@ jobs:
           echo "docs=${{ needs.docs.result }}"
           echo "storefront=${{ needs.storefront.result }}"
           echo "security=${{ needs.security.result }}"
-          # Security is soft on audit noise but job must complete successfully
+          echo "coderabbit=${{ needs.coderabbit.result }}"
           for r in "${{ needs.backend.result }}" "${{ needs.cockpit.result }}" \
                     "${{ needs.docs.result }}" "${{ needs.storefront.result }}" \
-                    "${{ needs.security.result }}"; do
+                    "${{ needs.security.result }}" "${{ needs.coderabbit.result }}"; do
             if [ "$r" != "success" ]; then
               echo "Gate failed: $r"
               exit 1

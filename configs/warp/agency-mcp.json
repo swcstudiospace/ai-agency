@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "ai-agency": {
+      "url": "http://127.0.0.1:7777/mcp"
+    },
+    "drop": {
+      "url": "http://127.0.0.1:7788/mcp"
+    },
+    "hermes-bridge": {
+      "url": "http://127.0.0.1:7790/mcp"
+    }
+  }
+}

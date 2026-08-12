@@ -14,6 +14,7 @@ We do **not** treat “ad-hoc smoke” as CI. GitHub Actions is the source of tr
 | **Docs** | Docusaurus production build | Yes |
 | **Storefront** | Oxygen/ego.engineer Vite build | Yes |
 | **Security** | Gitleaks + pip-audit + npm audit | Job must pass; audits may warn |
+| **CodeRabbit** | CLI review + `.coderabbit.yaml` validate | Soft without secret; hard with key |
 | **CD Docs** | GitHub Pages from `docs-site/build` | On main path push |
 
 ## Workflows
@@ -26,6 +27,7 @@ We do **not** treat “ad-hoc smoke” as CI. GitHub Actions is the source of tr
   ci-docs.yml            # Docusaurus
   ci-storefront.yml      # storefront-oxygen
   ci-security.yml        # gitleaks · audits
+  ci-coderabbit.yml      # CodeRabbit CLI review
   cd-docs.yml            # GitHub Pages deploy
   agency-cockpit-package.yml  # heavier desktop packages
 ```

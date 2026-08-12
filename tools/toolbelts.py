@@ -9,6 +9,7 @@ from tools.analytics_store import get_analytics_tools
 from tools.anda_knowledge import get_anda_brain_tools
 from tools.catalog_ops_tools import get_catalog_ops_tools
 from tools.chargeback_ops_tools import get_chargeback_ops_tools
+from tools.coderabbit_tools import get_coderabbit_tools
 from tools.community_ops_tools import get_community_ops_tools
 from tools.creative_ops_tools import get_creative_ops_tools
 from tools.cx_ops_tools import get_cx_ops_tools
@@ -40,6 +41,7 @@ from tools.spend_vault import get_spend_tools
 from tools.supplier_tools import get_supplier_tools
 from tools.tax_ops_tools import get_tax_ops_tools
 from tools.tiktok_ads_tools import get_tiktok_tools
+from tools.warp_tools import get_warp_tools
 
 
 def _parallel_core() -> list[Any]:
@@ -73,6 +75,8 @@ TOOLBELTS: dict[str, list[Any]] = {
     "ads_full": get_meta_tools() + get_tiktok_tools() + get_spend_tools(),
     "creative_prod": get_fal_tools() + get_promptwise_tools() + get_shopify_tools(),
     "hermes_bridge": get_hermes_bridge_tools(),
+    "warp": get_warp_tools(),
+    "coderabbit": get_coderabbit_tools(),
     "anda_brain": get_anda_brain_tools(),
     "analytics": get_analytics_tools(),
     # ── ops expansion belts ──
