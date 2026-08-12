@@ -3,20 +3,21 @@
 from __future__ import annotations
 
 import os
-from typing import Any, List, Optional, Sequence, Type, Union
+from collections.abc import Sequence
+from typing import Any
 
 from agno.agent import Agent
 from pydantic import BaseModel
+from tools.guardrails import default_tool_hooks
+from tools.skills_loader import skills_for
+from tools.toolbelts import resolve_toolbelt
+from tools.xai_model import get_grok_model
 
 from agents.prompt_loader import (
     build_additional_input,
     build_expected_output,
     build_instructions,
 )
-from tools.guardrails import default_tool_hooks
-from tools.skills_loader import skills_for
-from tools.toolbelts import resolve_toolbelt
-from tools.xai_model import get_grok_model
 
 
 def build_agent(
@@ -24,23 +25,23 @@ def build_agent(
     name: str,
     role: str,
     persona: str,
-    toolbelts: Optional[Sequence[str]] = None,
-    skill_names: Optional[Sequence[str]] = None,
-    extra_tools: Optional[List[Any]] = None,
-    output_schema: Optional[Union[Type[BaseModel], dict]] = None,
+    toolbelts: Sequence[str] | None = None,
+    skill_names: Sequence[str] | None = None,
+    extra_tools: list[Any] | None = None,
+    output_schema: type[BaseModel] | dict | None = None,
     model_id: str = "grok-4.5",
     temperature: float = 0.3,
     markdown: bool = True,
     add_history_to_context: bool = False,
-    num_history_runs: Optional[int] = None,
+    num_history_runs: int | None = None,
     add_datetime_to_context: bool = True,
     use_json_mode: bool = False,
-    tool_hooks: Optional[List[Any]] = None,
-    extra_instructions: Optional[Sequence[str]] = None,
-    id: Optional[str] = None,
+    tool_hooks: list[Any] | None = None,
+    extra_instructions: Sequence[str] | None = None,
+    id: str | None = None,
 ) -> Agent:
     """Compose an Agent from persona markdown + scoped skills + toolbelts."""
-    tools: List[Any] = []
+    tools: list[Any] = []
     belts = list(toolbelts or [])
     # Always attach Hermes reverse bridge (browser/skills/KIP) unless explicitly disabled
     if "hermes_bridge" not in belts and os.getenv("AGENCY_DISABLE_HERMES_BRIDGE", "").lower() not in {

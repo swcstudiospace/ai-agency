@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 
@@ -57,7 +57,7 @@ def _client():
     return Parallel(api_key=_load_api_key())
 
 
-def _rest(method: str, path: str, body: Optional[dict] = None, timeout: float = 120.0) -> Dict[str, Any]:
+def _rest(method: str, path: str, body: dict | None = None, timeout: float = 120.0) -> dict[str, Any]:
     key = _load_api_key()
     url = path if path.startswith("http") else f"{API_BASE}{path}"
     headers = {
@@ -79,10 +79,10 @@ def _rest(method: str, path: str, body: Optional[dict] = None, timeout: float = 
 
 def parallel_search(
     objective: str,
-    search_queries: Optional[List[str]] = None,
+    search_queries: list[str] | None = None,
     mode: str = "advanced",
-    max_chars_total: Optional[int] = None,
-) -> Dict[str, Any]:
+    max_chars_total: int | None = None,
+) -> dict[str, Any]:
     """Search the web with a natural-language objective.
 
     Modes (Parallel Search API): ``turbo``, ``basic``, ``advanced`` (and docs
@@ -99,7 +99,7 @@ def parallel_search(
     client = _client()
     if client is not None:
         try:
-            kwargs: Dict[str, Any] = {
+            kwargs: dict[str, Any] = {
                 "objective": objective,
                 "search_queries": queries[:5],
                 "mode": mode,
@@ -127,7 +127,7 @@ def parallel_search(
     else:
         sdk_error = None
 
-    body: Dict[str, Any] = {
+    body: dict[str, Any] = {
         "objective": objective,
         "search_queries": queries[:5],
         "mode": mode,
@@ -156,12 +156,12 @@ def parallel_search(
     }
 
 
-def parallel_extract(urls: List[str], objective: Optional[str] = None) -> Dict[str, Any]:
+def parallel_extract(urls: list[str], objective: str | None = None) -> dict[str, Any]:
     """Extract clean content from URLs."""
     client = _client()
     if client is not None:
         try:
-            kwargs: Dict[str, Any] = {"urls": urls}
+            kwargs: dict[str, Any] = {"urls": urls}
             if objective:
                 kwargs["objective"] = objective
             result = client.extract(**kwargs)
@@ -169,7 +169,7 @@ def parallel_extract(urls: List[str], objective: Optional[str] = None) -> Dict[s
         except Exception as e:
             return {"error": str(e), "urls": urls}
 
-    body: Dict[str, Any] = {"urls": urls}
+    body: dict[str, Any] = {"urls": urls}
     if objective:
         body["objective"] = objective
     try:
@@ -178,7 +178,7 @@ def parallel_extract(urls: List[str], objective: Optional[str] = None) -> Dict[s
         return {"error": str(e), "urls": urls}
 
 
-def _task_spec(output_schema: Optional[Any] = None) -> Optional[Dict[str, Any]]:
+def _task_spec(output_schema: Any | None = None) -> dict[str, Any] | None:
     if output_schema is None:
         return None
     return {"output_schema": output_schema}
@@ -187,10 +187,10 @@ def _task_spec(output_schema: Optional[Any] = None) -> Optional[Dict[str, Any]]:
 def parallel_task(
     objective: str,
     processor: str = "pro",
-    output_schema: Optional[Any] = None,
+    output_schema: Any | None = None,
     wait: bool = False,
     timeout_s: float = 3600.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Start a Parallel Task run (deep research / structured enrichment).
 
     Processors: lite → base → core → pro → ultra.
@@ -198,10 +198,10 @@ def parallel_task(
     """
     client = _client()
     task_spec = _task_spec(output_schema)
-    run_id: Optional[str] = None
+    run_id: str | None = None
     if client is not None:
         try:
-            kwargs: Dict[str, Any] = {"input": objective, "processor": processor}
+            kwargs: dict[str, Any] = {"input": objective, "processor": processor}
             if task_spec:
                 kwargs["task_spec"] = task_spec
             task_run = client.task_run.create(**kwargs)
@@ -226,7 +226,7 @@ def parallel_task(
             elif not wait:
                 return {"error": str(e), "objective": objective, "processor": processor}
 
-    body: Dict[str, Any] = {"input": objective, "processor": processor}
+    body: dict[str, Any] = {"input": objective, "processor": processor}
     if task_spec:
         body["task_spec"] = task_spec
     try:
@@ -254,7 +254,7 @@ def parallel_task(
         return {"error": str(e), "objective": objective, "task_id": run_id, "processor": processor}
 
 
-def _normalize_task_result(run_id: str, result: Any, *, processor: str) -> Dict[str, Any]:
+def _normalize_task_result(run_id: str, result: Any, *, processor: str) -> dict[str, Any]:
     """Normalize SDK object or REST dict task result."""
     if hasattr(result, "model_dump"):
         data = result.model_dump()
@@ -292,7 +292,7 @@ def _normalize_task_result(run_id: str, result: Any, *, processor: str) -> Dict[
     }
 
 
-def parallel_task_result(run_id: str, timeout_s: float = 3600.0) -> Dict[str, Any]:
+def parallel_task_result(run_id: str, timeout_s: float = 3600.0) -> dict[str, Any]:
     """Fetch a Task run result (waits up to timeout)."""
     client = _client()
     if client is not None:
@@ -320,7 +320,7 @@ def parallel_entity_search(
     objective: str,
     entity_type: str = "companies",
     match_limit: int = 50,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Find entities (companies, people, products) matching an objective."""
     client = _client()
     if client is not None:
@@ -369,11 +369,11 @@ def parallel_create_monitor(
     query: str,
     frequency: str = "1d",
     processor: str = "lite",
-    webhook_url: Optional[str] = None,
-) -> Dict[str, Any]:
+    webhook_url: str | None = None,
+) -> dict[str, Any]:
     """Create a continuous monitor for competitor / category tracking."""
     client = _client()
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "type": "event_stream",
         "frequency": frequency,
         "processor": processor,

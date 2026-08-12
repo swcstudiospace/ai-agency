@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def fraud_score_order(
@@ -13,10 +13,10 @@ def fraud_score_order(
     new_account: bool = False,
     rush_shipping: bool = False,
     bin_reuse: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Heuristic fraud risk score and action."""
     score = 10.0
-    signals: List[str] = []
+    signals: list[str] = []
     if amount_usd >= 150:
         score += 15
         signals.append("high_aov")
@@ -56,7 +56,7 @@ def fraud_score_order(
     }
 
 
-def fraud_velocity_check(email_domain: str = "", ip_orders_24h: int = 0, card_orders_24h: int = 0) -> Dict[str, Any]:
+def fraud_velocity_check(email_domain: str = "", ip_orders_24h: int = 0, card_orders_24h: int = 0) -> dict[str, Any]:
     """Simple velocity flags."""
     flags = []
     if ip_orders_24h >= 3:
@@ -68,7 +68,7 @@ def fraud_velocity_check(email_domain: str = "", ip_orders_24h: int = 0, card_or
     return {"ok": True, "flags": flags, "elevated": bool(flags)}
 
 
-def fraud_allowlist_denylist(action: str = "status", value: str = "") -> Dict[str, Any]:
+def fraud_allowlist_denylist(action: str = "status", value: str = "") -> dict[str, Any]:
     """Stub allow/deny list manager (persist via KIP/Linear in production)."""
     return {
         "ok": True,

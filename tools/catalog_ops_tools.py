@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def catalog_health_scan(
@@ -11,7 +11,7 @@ def catalog_health_scan(
     missing_prices: int = 0,
     drafts_public: int = 0,
     dead_no_sales_90d: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Score catalog health from provided counters (wire live Shopify counts when available)."""
     issues = []
     if missing_images:
@@ -38,7 +38,7 @@ def catalog_price_audit(
     cogs: float,
     shipping: float = 0.0,
     target_cm_pct: float = 0.25,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Check if list price clears target contribution margin."""
     cm = float(list_price) - float(cogs) - float(shipping)
     cm_pct = cm / list_price if list_price else 0.0
@@ -56,10 +56,10 @@ def catalog_price_audit(
 
 
 def catalog_publish_plan(
-    publish: Optional[List[str]] = None,
-    archive: Optional[List[str]] = None,
-    feature: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    publish: list[str] | None = None,
+    archive: list[str] | None = None,
+    feature: list[str] | None = None,
+) -> dict[str, Any]:
     """Plan publish/archive/feature actions (execution via Shopify HITL/API)."""
     return {
         "ok": True,

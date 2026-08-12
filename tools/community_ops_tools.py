@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def community_sentiment_digest(
     positive: int = 0,
     neutral: int = 0,
     negative: int = 0,
-    themes: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    themes: list[str] | None = None,
+) -> dict[str, Any]:
     """Summarize sentiment counts into ops digest."""
     total = max(1, positive + neutral + negative)
     return {
@@ -30,7 +30,7 @@ def community_ugc_intake(
     asset_url: str = "",
     permission: bool = False,
     channel: str = "instagram",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Log UGC candidate for Creative Ops."""
     return {
         "ok": True,
@@ -46,7 +46,7 @@ def community_crisis_flag(
     summary: str,
     virality_0_to_1: float = 0.3,
     legal_risk: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Flag reputation crises for Hermes/CX."""
     severity = "low"
     if legal_risk or virality_0_to_1 >= 0.7:

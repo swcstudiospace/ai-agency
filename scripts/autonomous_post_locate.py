@@ -17,9 +17,8 @@ import argparse
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -36,7 +35,7 @@ from tools.shopify_tools import shopify_bootstrap_checklist, shopify_domain_plan
 
 
 def utc() -> str:
-    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
 
 def latest_locate() -> Path | None:
@@ -44,7 +43,7 @@ def latest_locate() -> Path | None:
     return runs[0] if runs else None
 
 
-def main(argv: List[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--locate-json", default="")
     ap.add_argument("--top-suppliers", type=int, default=2)

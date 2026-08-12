@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 def contribution_margin(
@@ -14,7 +14,7 @@ def contribution_margin(
     ad_spend_per_order: float = 0.0,
     returns_pct: float = 0.05,
     other_variable: float = 0.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Compute contribution margin after ads and expected returns."""
     fees = sell_price * payment_fee_pct + payment_fee_fixed
     returns_cost = sell_price * returns_pct
@@ -44,7 +44,7 @@ def price_ladder(
     shipping: float,
     target_cm_pct: float = 0.35,
     ad_cpa: float = 15.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Suggest sell prices for target contribution margin after ads."""
     base_variable = cogs + shipping + 0.30  # rough fixed fee
     # price - base_variable - 0.029*price - ad_cpa = target_cm_pct * price

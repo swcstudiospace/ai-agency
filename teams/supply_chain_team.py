@@ -3,6 +3,7 @@
 from agents.fulfillment_ops import fulfillment_ops
 from agents.inventory_planner import inventory_planner
 from agents.supplier_sourcer import supplier_sourcer
+
 from teams._factory import build_team
 
 supply_chain_team = build_team(

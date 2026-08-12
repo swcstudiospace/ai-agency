@@ -20,12 +20,12 @@ from __future__ import annotations
 import argparse
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
-from tools.envutil import load_dotenv_files
 from tools.economics_tools import contribution_margin
+from tools.envutil import load_dotenv_files
 from tools.fal_tools import build_ugc_brief_and_render, list_fal_avatars
 from tools.linear_tools import agency_track, linear_status, update_linear_issue
 from tools.logistics_tools import estimate_shipping_profile
@@ -41,10 +41,10 @@ RUNS = ROOT / "tmp" / "runs"
 
 
 def _utc() -> str:
-    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
 
-def _cm(price: float, cogs: float, ship: float, cpa: float = 18.0) -> Dict[str, Any]:
+def _cm(price: float, cogs: float, ship: float, cpa: float = 18.0) -> dict[str, Any]:
     try:
         return contribution_margin(price, cogs, ship, cpa)
     except Exception:
@@ -59,7 +59,7 @@ def _cm(price: float, cogs: float, ship: float, cpa: float = 18.0) -> Dict[str, 
         }
 
 
-def stage_research(niche: str, processor: str, timeout: int) -> Dict[str, Any]:
+def stage_research(niche: str, processor: str, timeout: int) -> dict[str, Any]:
     search = parallel_search(
         objective=f"Winning dropshipping product opportunities in: {niche}",
         search_queries=[
@@ -117,7 +117,7 @@ def stage_research(niche: str, processor: str, timeout: int) -> Dict[str, Any]:
     return {"search": search, "task": task}
 
 
-def _extract_candidates(task: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _extract_candidates(task: dict[str, Any]) -> list[dict[str, Any]]:
     out = task.get("output") or task.get("result") or task
     if isinstance(out, str):
         try:
@@ -140,7 +140,7 @@ def _extract_candidates(task: Dict[str, Any]) -> List[Dict[str, Any]]:
     return []
 
 
-def stage_score(candidates: List[Dict[str, Any]], cpa: float) -> List[Dict[str, Any]]:
+def stage_score(candidates: list[dict[str, Any]], cpa: float) -> list[dict[str, Any]]:
     ranked = []
     for c in candidates:
         price = float(c.get("suggested_price_usd") or c.get("price") or 0)
@@ -163,10 +163,10 @@ def stage_score(candidates: List[Dict[str, Any]], cpa: float) -> List[Dict[str, 
     return ranked
 
 
-def run(niche: str, processor: str, top_n: int, cpa: float, timeout: int, render_ugc: bool) -> Dict[str, Any]:
+def run(niche: str, processor: str, top_n: int, cpa: float, timeout: int, render_ugc: bool) -> dict[str, Any]:
     load_dotenv_files()
     started = time.time()
-    report: Dict[str, Any] = {
+    report: dict[str, Any] = {
         "meta": {
             "niche": niche,
             "processor": processor,
@@ -373,13 +373,13 @@ def run(niche: str, processor: str, top_n: int, cpa: float, timeout: int, render
     # markdown summary
     lines = [
         f"# Autonomous lifecycle — {niche}",
-        f"",
+        "",
         f"- finished: {report['meta']['finished']}",
         f"- processor: {processor}",
         f"- root linear: {(root_issue or {}).get('identifier')} {(root_issue or {}).get('url')}",
         f"- linear mode: {(report['meta'].get('linear') or {}).get('mode')}",
-        f"",
-        f"## Selected products",
+        "",
+        "## Selected products",
     ]
     for p in products_out:
         sa = p.get("spend_approval") or {}

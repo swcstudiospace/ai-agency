@@ -3,6 +3,7 @@
 from agents.pricing_strategist import pricing_strategist
 from agents.product_scout import product_scout
 from agents.supplier_sourcer import supplier_sourcer
+
 from teams._factory import build_team
 
 research_team = build_team(

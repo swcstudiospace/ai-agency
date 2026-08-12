@@ -1,5 +1,4 @@
 from agno.workflow import Step, Workflow
-
 from teams.creative_team import creative_team
 from teams.growth_team import growth_team
 from teams.research_team import research_team

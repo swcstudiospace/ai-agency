@@ -6,7 +6,7 @@ import json
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 
@@ -25,7 +25,7 @@ def _advertiser() -> str:
     return env("TIKTOK_ADVERTISER_ID")
 
 
-def tiktok_status() -> Dict[str, Any]:
+def tiktok_status() -> dict[str, Any]:
     tok, adv = _token(), _advertiser()
     if not tok or not adv:
         return {"ok": False, "mode": "stub", "reason": "TIKTOK_ACCESS_TOKEN or TIKTOK_ADVERTISER_ID missing"}
@@ -48,7 +48,7 @@ def tiktok_draft_campaign(
     landing_url: str = "",
     video_url: str = "",
     ad_text: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     draft_id = f"tt_draft_{uuid.uuid4().hex[:10]}"
     # TikTok budgets often in account currency minor units; keep USD float + note
     draft = {
@@ -99,7 +99,7 @@ def tiktok_launch_campaign(
     draft_id: str,
     approval_id: str,
     spend_token: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     path = _DRAFTS / f"{draft_id}.json"
     if not path.is_file():
         path = Path(draft_id)
@@ -183,7 +183,7 @@ def tiktok_launch_campaign(
     return {"ok": True, "campaign_id": campaign_id, "result": result, "draft": draft, "gate": gate}
 
 
-def tiktok_pause_campaign(campaign_id: str) -> Dict[str, Any]:
+def tiktok_pause_campaign(campaign_id: str) -> dict[str, Any]:
     tok, adv = _token(), _advertiser()
     if not tok or not adv:
         return {"ok": True, "stub": True, "status": "DISABLE"}

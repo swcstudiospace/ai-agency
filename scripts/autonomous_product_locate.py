@@ -20,9 +20,9 @@ import argparse
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -38,10 +38,10 @@ from tools.supplier_tools import locate_suppliers_for_product
 
 
 def utc() -> str:
-    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
 
-def load_top_products(limit: int = 3) -> List[Dict[str, Any]]:
+def load_top_products(limit: int = 3) -> list[dict[str, Any]]:
     ranks = sorted(
         (ROOT / "tmp/runs").glob("product_rank_*.json"),
         key=lambda p: p.stat().st_mtime,
@@ -59,7 +59,7 @@ def load_top_products(limit: int = 3) -> List[Dict[str, Any]]:
     return picks
 
 
-def main(argv: List[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Locate suppliers for ranked products")
     ap.add_argument("--product", default="", help="Single product name (skips rank load)")
     ap.add_argument("--top", type=int, default=3)
@@ -75,7 +75,7 @@ def main(argv: List[str] | None = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("=== Product LOCATE ===")
-    products: List[Dict[str, Any]] = []
+    products: list[dict[str, Any]] = []
     if args.product:
         products = [{"name": args.product, "decision": "MANUAL", "suggested_price_usd": None}]
     else:

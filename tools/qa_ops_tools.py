@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
-def qa_defect_taxonomy(category: str = "general") -> Dict[str, Any]:
+def qa_defect_taxonomy(category: str = "general") -> dict[str, Any]:
     """Return defect codes for a product category (inspection vocabulary)."""
     base = [
         "DIM_OUT_OF_SPEC",
@@ -33,8 +33,8 @@ def qa_run_inspection_checklist(
     sample_id: str = "",
     category: str = "general",
     notes: str = "",
-    defects: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    defects: list[str] | None = None,
+) -> dict[str, Any]:
     """Score a sample inspection and suggest PASS|CONDITIONAL|FAIL."""
     defs = list(defects or [])
     notes_l = (notes or "").lower()
@@ -73,9 +73,9 @@ def qa_run_inspection_checklist(
 def qa_supplier_feedback_draft(
     sku: str,
     verdict: str,
-    defects: Optional[List[str]] = None,
+    defects: list[str] | None = None,
     deadline_days: int = 7,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Draft supplier CAPA / feedback email body (send is human/HITL)."""
     defs = ", ".join(defects or []) or "see inspection notes"
     body = (

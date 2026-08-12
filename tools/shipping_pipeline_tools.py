@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from tools.envutil import env
 from tools.logistics_tools import estimate_shipping_profile, fulfillment_sla_copy
@@ -22,11 +22,11 @@ from tools.logistics_tools import estimate_shipping_profile, fulfillment_sla_cop
 def design_shipping_pipeline(
     product_name: str,
     origin_country: str = "CN",
-    dest_markets: Optional[List[str]] = None,
+    dest_markets: list[str] | None = None,
     fulfillment_mode: str = "supplier_dropship",
     processing_hours: int = 48,
     weight_g: float = 450,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Design fulfillment routing for a SKU (planning artifact, not carrier booking).
 
     fulfillment_mode:
@@ -140,7 +140,7 @@ def design_shipping_pipeline(
 def setup_order_routing_playbook(
     mode: str = "supplier_dropship",
     brand_domain: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Operator checklist for connecting Shopify → fulfillment."""
     domain = brand_domain or env("AGENCY_PRIMARY_DOMAIN") or "ego.engineer"
     checklist = [

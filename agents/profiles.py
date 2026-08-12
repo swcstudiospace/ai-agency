@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import List, Optional, Sequence, Type
 
 from pydantic import BaseModel
 
@@ -17,14 +17,14 @@ class AgentProfile:
     role: str
     toolbelts: Sequence[str] = field(default_factory=tuple)
     skills: Sequence[str] = field(default_factory=tuple)
-    output_schema: Optional[Type[BaseModel]] = None
+    output_schema: type[BaseModel] | None = None
     temperature: float = 0.3
     add_history: bool = False
     num_history_runs: int = 3
     use_json_mode: bool = False
 
 
-PROFILES: List[AgentProfile] = [
+PROFILES: list[AgentProfile] = [
     AgentProfile(
         key="hermes_ops",
         name="Hermes Ops",

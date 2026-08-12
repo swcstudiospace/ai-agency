@@ -1,0 +1,46 @@
+name: CI — Storefront (Oxygen / ego.engineer)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "storefront-oxygen/**"
+      - ".github/workflows/ci-storefront.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "storefront-oxygen/**"
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ci-storefront-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Vite production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: storefront-oxygen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: storefront-oxygen/package-lock.json
+      - name: Install (include devDependencies)
+        run: |
+          NODE_ENV=development npm ci --include=dev || NODE_ENV=development npm install --include=dev --legacy-peer-deps
+          node node_modules/esbuild/install.js || true
+      - name: Build
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storefront-oxygen-dist
+          path: storefront-oxygen/dist
+          if-no-files-found: error
+          retention-days: 14

@@ -4,6 +4,7 @@ from agents.analyst import analyst
 from agents.finance_controller import finance_controller
 from agents.growth_media_buyer import growth_media_buyer
 from agents.influencer_manager import influencer_manager
+
 from teams._factory import build_team
 
 growth_team = build_team(

@@ -1,9 +1,10 @@
 """Growth Ops Team — markdown in prompts/teams/growth_ops/."""
 
-from agents.growth_media_buyer import growth_media_buyer
 from agents.ads_creative_ops import ads_creative_ops
-from agents.experimentation_lead import experimentation_lead
 from agents.community_manager import community_manager
+from agents.experimentation_lead import experimentation_lead
+from agents.growth_media_buyer import growth_media_buyer
+
 from teams._factory import build_team
 
 growth_ops_team = build_team(

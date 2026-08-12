@@ -9,7 +9,7 @@ import json
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 
@@ -32,7 +32,7 @@ def _account() -> str:
     return act
 
 
-def meta_status() -> Dict[str, Any]:
+def meta_status() -> dict[str, Any]:
     tok, act = _token(), _account()
     if not tok or not act:
         return {"ok": False, "mode": "stub", "reason": "META_ACCESS_TOKEN or META_AD_ACCOUNT_ID missing"}
@@ -47,7 +47,7 @@ def meta_status() -> Dict[str, Any]:
         return {"ok": False, "error": str(e)}
 
 
-def meta_list_campaigns(limit: int = 10) -> Dict[str, Any]:
+def meta_list_campaigns(limit: int = 10) -> dict[str, Any]:
     tok, act = _token(), _account()
     if not tok or not act:
         return {"campaigns": [], "stub": True}
@@ -67,12 +67,12 @@ def meta_draft_campaign(
     name: str,
     objective: str = "OUTCOME_SALES",
     daily_budget_usd: float = 20.0,
-    countries: Optional[List[str]] = None,
+    countries: list[str] | None = None,
     pixel_id: str = "",
     landing_url: str = "",
     creative_message: str = "",
     video_url: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a local DRAFT campaign plan (and optional PAUSED remote objects if live)."""
     draft_id = f"meta_draft_{uuid.uuid4().hex[:10]}"
     countries = countries or ["US"]
@@ -123,7 +123,7 @@ def meta_launch_campaign(
     draft_id: str,
     approval_id: str,
     spend_token: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Activate a draft/paused campaign ONLY with confirmed HITL spend approval."""
     path = _DRAFTS / f"{draft_id}.json"
     if not path.is_file():
@@ -198,7 +198,7 @@ def meta_launch_campaign(
     return {"ok": "error" not in result, "campaign_id": campaign_id, "result": result, "draft": draft, "gate": gate}
 
 
-def meta_pause_campaign(campaign_id: str) -> Dict[str, Any]:
+def meta_pause_campaign(campaign_id: str) -> dict[str, Any]:
     tok = _token()
     if not tok:
         return {"ok": True, "stub": True, "status": "PAUSED"}
@@ -207,7 +207,7 @@ def meta_pause_campaign(campaign_id: str) -> Dict[str, Any]:
         return r.json()
 
 
-def meta_insights(object_id: str, date_preset: str = "last_7d") -> Dict[str, Any]:
+def meta_insights(object_id: str, date_preset: str = "last_7d") -> dict[str, Any]:
     tok = _token()
     if not tok:
         return {"stub": True, "insights": []}

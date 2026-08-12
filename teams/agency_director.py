@@ -4,6 +4,7 @@ from agents.analyst import analyst
 from agents.compliance_officer import compliance_officer
 from agents.finance_controller import finance_controller
 from agents.hermes_ops import hermes_ops
+
 from teams._factory import build_team
 
 agency_director_team = build_team(

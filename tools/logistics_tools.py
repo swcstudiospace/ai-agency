@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 
@@ -16,7 +16,7 @@ def estimate_shipping_profile(
     length_cm: float = 20,
     width_cm: float = 15,
     height_cm: float = 5,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Heuristic shipping risk/cost profile for dropshipping planning."""
     vol = max(float(length_cm) * float(width_cm) * float(height_cm), 1.0)
     # Courier-style DIM: kg ≈ cm³/5000 → grams ≈ cm³/5
@@ -45,7 +45,7 @@ def estimate_shipping_profile(
     }
 
 
-def track_shipment(tracking_number: str, carrier: str = "") -> Dict[str, Any]:
+def track_shipment(tracking_number: str, carrier: str = "") -> dict[str, Any]:
     """Track via 17track if SEVENTEENTRACK_TOKEN set; else stub."""
     tracking_number = (tracking_number or "").strip()
     if not tracking_number:
@@ -82,7 +82,7 @@ def track_shipment(tracking_number: str, carrier: str = "") -> Dict[str, Any]:
 def fulfillment_sla_copy(
     processing_hours: int = 48,
     transit_guidance: str = "6-14 days",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "pdp_shipping_blurb": (
             f"Orders typically process within {processing_hours} hours. "

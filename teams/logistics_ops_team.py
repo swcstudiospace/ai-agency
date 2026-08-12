@@ -1,9 +1,10 @@
 """Logistics Ops Team — markdown in prompts/teams/logistics_ops/."""
 
 from agents.fulfillment_ops import fulfillment_ops
-from agents.logistics_coordinator import logistics_coordinator
 from agents.inventory_planner import inventory_planner
+from agents.logistics_coordinator import logistics_coordinator
 from agents.qa_inspector import qa_inspector
+
 from teams._factory import build_team
 
 logistics_ops_team = build_team(

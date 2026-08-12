@@ -25,7 +25,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 
@@ -44,7 +44,7 @@ def _api_configured() -> bool:
     return bool(env("PROMPTWISE_API_KEY") and env("PROMPTWISE_API_BASE"))
 
 
-def promptwise_status() -> Dict[str, Any]:
+def promptwise_status() -> dict[str, Any]:
     """Report integration mode and readiness (never prints secrets)."""
     api = _api_configured()
     browser = env("PROMPTWISE_BROWSER_ENABLED", "1").lower() not in {"0", "false", "no"}
@@ -83,8 +83,8 @@ def promptwise_build_ugc_brief(
     cta: str = "Shop now — link in bio",
     brand_voice: str = "friendly, specific, no medical claims",
     product_image_url: str = "",
-    price_usd: Optional[float] = None,
-) -> Dict[str, Any]:
+    price_usd: float | None = None,
+) -> dict[str, Any]:
     """Build a structured UGC brief for PromptWise UGC Factory / Wise / Flows."""
     product_name = (product_name or "Product").strip()
     angle = (angle or "problem → demo → result").strip()
@@ -131,7 +131,7 @@ def promptwise_build_ugc_brief(
     return brief
 
 
-def _bridge_browser(tool: str, **kwargs: Any) -> Dict[str, Any]:
+def _bridge_browser(tool: str, **kwargs: Any) -> dict[str, Any]:
     """Call Hermes bridge browser helpers (in-process wrappers)."""
     try:
         from tools import hermes_bridge_tools as hbt
@@ -157,7 +157,7 @@ def _bridge_browser(tool: str, **kwargs: Any) -> Dict[str, Any]:
 def promptwise_open_workspace(
     path: str = "",
     take_snapshot: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Open PromptWise in the Hermes bridge browser (requires logged-in session)."""
     if env("PROMPTWISE_BROWSER_ENABLED", "1").lower() in {"0", "false", "no"}:
         return {"ok": False, "error": "PROMPTWISE_BROWSER_ENABLED=0"}
@@ -167,7 +167,7 @@ def promptwise_open_workspace(
     url = f"{base}{rel if rel.startswith('/') else '/' + rel}" if rel else base
 
     nav = _bridge_browser("navigate", url=url)
-    out: Dict[str, Any] = {"ok": bool(nav.get("ok", True)), "url": url, "navigate": nav}
+    out: dict[str, Any] = {"ok": bool(nav.get("ok", True)), "url": url, "navigate": nav}
     if take_snapshot:
         snap = _bridge_browser("snapshot")
         out["snapshot"] = {
@@ -189,7 +189,7 @@ def promptwise_run_ugc_job(
     script: str = "",
     open_browser: bool = True,
     use_api_if_available: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """End-to-end UGC job: brief → optional API → browser open for generation.
 
     Does **not** auto-spend credits without a human in the loop when only
@@ -201,7 +201,7 @@ def promptwise_run_ugc_job(
         hook=hook,
         script=script,
     )
-    result: Dict[str, Any] = {
+    result: dict[str, Any] = {
         "ok": True,
         "brief": brief,
         "status": "brief_ready",
@@ -232,7 +232,7 @@ def promptwise_run_ugc_job(
     return result
 
 
-def _promptwise_api_generate(brief: Dict[str, Any]) -> Dict[str, Any]:
+def _promptwise_api_generate(brief: dict[str, Any]) -> dict[str, Any]:
     """Best-effort HTTP call when PROMPTWISE_API_* is configured (shape may vary)."""
     base = env("PROMPTWISE_API_BASE").rstrip("/")
     key = env("PROMPTWISE_API_KEY")
@@ -277,7 +277,7 @@ def _promptwise_api_generate(brief: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def get_promptwise_tools() -> List[Any]:
+def get_promptwise_tools() -> list[Any]:
     return [
         promptwise_status,
         promptwise_build_ugc_brief,

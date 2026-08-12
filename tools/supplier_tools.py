@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import json
-import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from tools.envutil import env
 
@@ -17,7 +16,7 @@ def score_supplier(
     shipping_cost: float,
     rating: float = 0.0,
     notes: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Heuristic supplier score 0-100 for agency ranking."""
     score = 50.0
     if lead_time_days <= 7:
@@ -53,7 +52,7 @@ def score_supplier(
     }
 
 
-def compare_suppliers(candidates: List[Dict[str, Any]]) -> Dict[str, Any]:
+def compare_suppliers(candidates: list[dict[str, Any]]) -> dict[str, Any]:
     ranked = sorted(candidates, key=lambda c: c.get("score", 0), reverse=True)
     return {"ranked": ranked, "top": ranked[0] if ranked else None}
 
@@ -64,7 +63,7 @@ def locate_suppliers_for_product(
     dest_market: str = "US",
     processor: str = "pro",
     max_suppliers: int = 5,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Find real supplier leads for a product via Parallel Search + Task.
 
     This is the **locate** step after product rank: where to buy, MOQ, sample
@@ -149,7 +148,7 @@ def locate_suppliers_for_product(
         timeout_s=float(env("LOCATE_TIMEOUT", "900") or "900"),
     )
 
-    suppliers_raw: List[Dict[str, Any]] = []
+    suppliers_raw: list[dict[str, Any]] = []
     summary = ""
     next_step = ""
     parse_error = None
@@ -214,10 +213,10 @@ def locate_suppliers_for_product(
 
 
 def locate_product_sources_batch(
-    products: List[str],
+    products: list[str],
     dest_market: str = "US",
     processor: str = "core",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Locate suppliers for multiple ranked products (sequential)."""
     results = []
     for name in products[:5]:

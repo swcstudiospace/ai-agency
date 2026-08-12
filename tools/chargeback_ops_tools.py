@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def chargeback_evidence_pack(
@@ -14,7 +14,7 @@ def chargeback_evidence_pack(
     cvv_match: bool = False,
     customer_emails: int = 0,
     descriptor_clear: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Assemble representment evidence checklist status."""
     items = {
         "order_invoice": True,
@@ -43,7 +43,7 @@ def chargeback_win_score(
     avs_match: bool = False,
     amount_usd: float = 0.0,
     evidence_missing: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Heuristic win probability and FIGHT|ACCEPT|PARTIAL recommendation."""
     score = 0.35
     r = (reason or "").lower()
@@ -72,7 +72,7 @@ def chargeback_win_score(
     }
 
 
-def chargeback_prevention_checklist(channel: str = "dtc") -> Dict[str, Any]:
+def chargeback_prevention_checklist(channel: str = "dtc") -> dict[str, Any]:
     """Prevention actions to reduce future chargebacks."""
     return {
         "ok": True,

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 from agno.skills import LocalSkills, Skills
 
@@ -17,8 +16,8 @@ SKILL_ROOTS = (
 )
 
 
-def _iter_skill_dirs() -> List[Path]:
-    found: List[Path] = []
+def _iter_skill_dirs() -> list[Path]:
+    found: list[Path] = []
     for root in SKILL_ROOTS:
         if not root.is_dir():
             continue
@@ -28,14 +27,14 @@ def _iter_skill_dirs() -> List[Path]:
     return found
 
 
-def _skill_index() -> Dict[str, Path]:
+def _skill_index() -> dict[str, Path]:
     return {p.name: p for p in _iter_skill_dirs()}
 
 
 @lru_cache(maxsize=1)
 def get_agency_skills() -> Skills:
     """Full registry of all agency/marketing/ops/agent skills."""
-    loaders: List[LocalSkills] = []
+    loaders: list[LocalSkills] = []
     for root in SKILL_ROOTS:
         if root.is_dir() and any((p / "SKILL.md").exists() for p in root.iterdir() if p.is_dir()):
             loaders.append(LocalSkills(str(root), validate=True))
@@ -45,12 +44,12 @@ def get_agency_skills() -> Skills:
 
 
 @lru_cache(maxsize=64)
-def _skills_for_frozen(names: Tuple[str, ...]) -> Skills:
+def _skills_for_frozen(names: tuple[str, ...]) -> Skills:
     if not names:
         return get_agency_skills()
     index = _skill_index()
-    loaders: List[LocalSkills] = []
-    missing: List[str] = []
+    loaders: list[LocalSkills] = []
+    missing: list[str] = []
     for name in names:
         path = index.get(name)
         if path is None:
@@ -65,7 +64,7 @@ def _skills_for_frozen(names: Tuple[str, ...]) -> Skills:
     return Skills(loaders=loaders)
 
 
-def skills_for(*names: str) -> Optional[Skills]:
+def skills_for(*names: str) -> Skills | None:
     """Return Skills scoped to the given skill folder names.
 
     Empty call → all skills (legacy). Prefer explicit scopes per agent.
@@ -80,5 +79,5 @@ def skills_for(*names: str) -> Optional[Skills]:
         return None
 
 
-def list_skill_names() -> List[str]:
+def list_skill_names() -> list[str]:
     return sorted(_skill_index())

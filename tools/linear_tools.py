@@ -12,7 +12,7 @@ import os
 import subprocess
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 import yaml
@@ -24,9 +24,9 @@ _CFG = Path.home() / ".config" / "hermes-linear" / "config.yaml"
 _DEFAULT_CONNECTOR = env("HERMES_LINEAR_URL", "http://127.0.0.1:8799")  # agency-local default
 
 
-def _load_linear_cfg() -> Dict[str, Any]:
+def _load_linear_cfg() -> dict[str, Any]:
     load_dotenv_files()
-    cfg: Dict[str, Any] = {}
+    cfg: dict[str, Any] = {}
     if _CFG.is_file():
         try:
             cfg = yaml.safe_load(_CFG.read_text(encoding="utf-8")) or {}
@@ -43,7 +43,7 @@ def _load_linear_cfg() -> Dict[str, Any]:
     }
 
 
-def _headers() -> Optional[Dict[str, str]]:
+def _headers() -> dict[str, str] | None:
     c = _load_linear_cfg()
     key = c["api_key"]
     if not key:
@@ -51,7 +51,7 @@ def _headers() -> Optional[Dict[str, str]]:
     return {"Authorization": key, "Content-Type": "application/json"}
 
 
-def _gql(query: str, variables: Optional[dict] = None) -> Dict[str, Any]:
+def _gql(query: str, variables: dict | None = None) -> dict[str, Any]:
     headers = _headers()
     if not headers:
         return {"error": "LINEAR_API_KEY not set", "stub": True}
@@ -67,7 +67,7 @@ def _gql(query: str, variables: Optional[dict] = None) -> Dict[str, Any]:
     return data.get("data") or data
 
 
-def linear_status() -> Dict[str, Any]:
+def linear_status() -> dict[str, Any]:
     c = _load_linear_cfg()
     if not c["api_key"]:
         return {"ok": False, "mode": "stub", "reason": "no LINEAR_API_KEY"}
@@ -87,12 +87,12 @@ def linear_status() -> Dict[str, Any]:
 def create_linear_issue(
     title: str,
     description: str = "",
-    team_id: Optional[str] = None,
+    team_id: str | None = None,
     label: str = "agency",
     priority: int = 3,
     state_key: str = "unstarted",
-    project_id: Optional[str] = None,
-) -> Dict[str, Any]:
+    project_id: str | None = None,
+) -> dict[str, Any]:
     """Create Linear issue. Returns identifier/url/id (or stub)."""
     c = _load_linear_cfg()
     team = (team_id or c["team_id"] or "").strip()
@@ -117,7 +117,7 @@ def create_linear_issue(
       }
     }
     """
-    inp: Dict[str, Any] = {
+    inp: dict[str, Any] = {
         "teamId": team,
         "title": title[:250],
         "description": description or "",
@@ -177,8 +177,8 @@ def link_issue_to_github_repo(
     title: str = "",
     description: str = "",
     linear_url: str = "",
-    repo: Optional[str] = None,
-) -> Dict[str, Any]:
+    repo: str | None = None,
+) -> dict[str, Any]:
     """Create a GitHub issue on LINEAR_GITHUB_REPO (default swcstudiospace/ai-agency)
     and attach it on the Linear issue. Avoids default Linear sync to agent_runtime.
     """
@@ -276,7 +276,7 @@ def link_issue_to_github_repo(
     }
 
 
-def comment_linear_issue(issue_id: str, body: str) -> Dict[str, Any]:
+def comment_linear_issue(issue_id: str, body: str) -> dict[str, Any]:
     """issue_id may be UUID or identifier (SWC-123) — resolves if needed."""
     headers = _headers()
     if not headers:
@@ -298,8 +298,8 @@ def update_linear_issue(
     issue_id: str,
     state: str = "",
     comment: str = "",
-    title: Optional[str] = None,
-) -> Dict[str, Any]:
+    title: str | None = None,
+) -> dict[str, Any]:
     """Update state by state_key (unstarted/started/completed/...) and/or comment."""
     headers = _headers()
     c = _load_linear_cfg()
@@ -320,7 +320,7 @@ def update_linear_issue(
             # try match by fetching team states — fallback comment only
             pass
 
-    results: Dict[str, Any] = {"issue_id": resolved}
+    results: dict[str, Any] = {"issue_id": resolved}
     if state_id or title:
         mutation = """
         mutation IssueUpdate($id: String!, $input: IssueUpdateInput!) {
@@ -330,7 +330,7 @@ def update_linear_issue(
           }
         }
         """
-        inp: Dict[str, Any] = {}
+        inp: dict[str, Any] = {}
         if state_id:
             inp["stateId"] = state_id
         if title:
@@ -343,7 +343,7 @@ def update_linear_issue(
     return {"ok": True, **results}
 
 
-def resolve_issue_id(issue_id_or_key: str) -> Optional[str]:
+def resolve_issue_id(issue_id_or_key: str) -> str | None:
     s = (issue_id_or_key or "").strip()
     if not s:
         return None
@@ -385,19 +385,19 @@ def resolve_issue_id(issue_id_or_key: str) -> Optional[str]:
     return nodes[0]["id"] if nodes else (s if len(s) > 20 else None)
 
 
-def _number_from_identifier(s: str) -> Optional[int]:
+def _number_from_identifier(s: str) -> int | None:
     if "-" not in s:
         return None
     tail = s.split("-")[-1]
     return int(tail) if tail.isdigit() else None
 
 
-def list_linear_issues(limit: int = 10, state_key: str = "") -> Dict[str, Any]:
+def list_linear_issues(limit: int = 10, state_key: str = "") -> dict[str, Any]:
     c = _load_linear_cfg()
     team = c["team_id"]
     if not _headers() or not team:
         return {"issues": [], "stub": True}
-    filt: Dict[str, Any] = {"team": {"id": {"eq": team}}}
+    filt: dict[str, Any] = {"team": {"id": {"eq": team}}}
     state_id = (c.get("states") or {}).get(state_key) if state_key else None
     if state_id:
         filt["state"] = {"id": {"eq": state_id}}
@@ -420,7 +420,7 @@ def ensure_kanban_card(
     description: str = "",
     linear_issue_id: str = "",
     linear_identifier: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Mirror to Hermes kanban board when CLI available."""
     board = _load_linear_cfg()["board"] or "eng"
     key = f"linear:{linear_identifier or linear_issue_id or uuid.uuid4().hex[:8]}"
@@ -468,7 +468,7 @@ def agency_track(
     description: str = "",
     stage: str = "research",
     priority: int = 3,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """One-call dual-write for autonomous pipeline milestones."""
     prefix = {
         "research": "[Scout]",

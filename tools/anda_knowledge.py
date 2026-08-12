@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any
 
 _ROOT = Path(__file__).resolve().parents[1]
 _ANDA_DOCS = _ROOT / "knowledge" / "anda"
@@ -30,7 +30,7 @@ def get_anda_filesystem_knowledge():
         return None
 
 
-def get_anda_brain_tools() -> List[Any]:
+def get_anda_brain_tools() -> list[Any]:
     """Direct tools (in-process) for Brain formation/recall/sleep — no HTTP hop."""
 
     def anda_brain_status() -> dict:

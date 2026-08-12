@@ -16,14 +16,14 @@ import secrets
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from tools.envutil import env
 
 _VAULT = Path(env("AGENCY_SPEND_VAULT", str(Path(__file__).resolve().parents[1] / "tmp" / "spend_vault.json")))
 
 
-def _load() -> Dict[str, Any]:
+def _load() -> dict[str, Any]:
     if not _VAULT.is_file():
         return {"funding_sources": [], "approvals": [], "audit": []}
     try:
@@ -32,7 +32,7 @@ def _load() -> Dict[str, Any]:
         return {"funding_sources": [], "approvals": [], "audit": []}
 
 
-def _save(data: Dict[str, Any]) -> None:
+def _save(data: dict[str, Any]) -> None:
     _VAULT.parent.mkdir(parents=True, exist_ok=True)
     tmp = _VAULT.with_suffix(".tmp")
     tmp.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
@@ -43,7 +43,7 @@ def _save(data: Dict[str, Any]) -> None:
         pass
 
 
-def _audit(data: Dict[str, Any], event: str, detail: Dict[str, Any]) -> None:
+def _audit(data: dict[str, Any], event: str, detail: dict[str, Any]) -> None:
     data.setdefault("audit", []).append(
         {"ts": time.time(), "event": event, "detail": detail}
     )
@@ -60,7 +60,7 @@ def attach_funding_source(
     address: str = "",
     currency: str = "USD",
     daily_cap_usd: float = 100.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Register a bank or crypto funding source (metadata only)."""
     kind = (kind or "").lower().strip()
     if kind not in {"bank", "crypto"}:
@@ -95,7 +95,7 @@ def attach_funding_source(
     return {"ok": True, "funding_source": {k: v for k, v in src.items() if k != "raw"}}
 
 
-def list_funding_sources() -> Dict[str, Any]:
+def list_funding_sources() -> dict[str, Any]:
     data = _load()
     return {"funding_sources": data.get("funding_sources") or [], "count": len(data.get("funding_sources") or [])}
 
@@ -110,7 +110,7 @@ def request_spend_approval(
     daily_budget_usd: float = 0.0,
     max_total_usd: float = 0.0,
     linear_issue: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a pending HITL spend approval. Human must confirm before ads go live."""
     amount_usd = float(amount_usd)
     if amount_usd <= 0:
@@ -214,7 +214,7 @@ def confirm_spend_approval(
     approval_id: str,
     confirm_code: str,
     human_ack: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Human-only confirmation. Requires matching code + explicit ack phrase."""
     if "i authorize" not in (human_ack or "").lower():
         return {
@@ -270,7 +270,7 @@ def confirm_spend_approval(
     }
 
 
-def verify_spend_token(approval_id: str, token: str, amount_usd: float, channel: str) -> Dict[str, Any]:
+def verify_spend_token(approval_id: str, token: str, amount_usd: float, channel: str) -> dict[str, Any]:
     """Called by ad launch tools before PAUSED→ACTIVE."""
     data = _load()
     rec = next((a for a in data.get("approvals") or [] if a.get("id") == approval_id), None)
@@ -299,7 +299,7 @@ def verify_spend_token(approval_id: str, token: str, amount_usd: float, channel:
     }
 
 
-def list_spend_approvals(status: str = "") -> Dict[str, Any]:
+def list_spend_approvals(status: str = "") -> dict[str, Any]:
     data = _load()
     rows = data.get("approvals") or []
     # never return tokens/code_hash in list

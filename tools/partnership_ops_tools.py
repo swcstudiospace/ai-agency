@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def partnership_score_fit(
@@ -10,7 +10,7 @@ def partnership_score_fit(
     audience_size: int = 0,
     niche_overlap_0_to_1: float = 0.5,
     brand_safety_0_to_1: float = 0.8,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Score partner fit."""
     reach = min(1.0, audience_size / 100_000) if audience_size else 0.3
     score = 100 * (0.4 * niche_overlap_0_to_1 + 0.4 * brand_safety_0_to_1 + 0.2 * reach)
@@ -27,7 +27,7 @@ def partnership_revshare_model(
     cogs_ship_usd: float,
     revshare_pct: float = 0.15,
     expected_cvr: float = 0.02,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Model contribution after affiliate revshare on AOV."""
     revshare = aov_usd * revshare_pct
     cm = aov_usd - cogs_ship_usd - revshare
@@ -46,7 +46,7 @@ def partnership_outreach_sequence(
     partner_name: str,
     product: str,
     revshare_pct: float = 0.15,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """3-step outreach sequence drafts."""
     return {
         "ok": True,

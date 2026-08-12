@@ -10,7 +10,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -69,8 +68,9 @@ def main() -> int:
     try:
         from app.main import agent_os
 
-        assert len(agent_os.agents) == 18
-        assert len(agent_os.teams) == 7
+        assert len(agent_os.agents) == 30
+        assert len(agent_os.teams) == 12
+        assert len(getattr(agent_os, "workflows", []) or []) >= 12
         # spot-check product scout has skills scoped not global
         scout = next(a for a in agent_os.agents if a.name == "Product Scout")
         sn = set(scout.skills.get_skill_names()) if scout.skills else set()
@@ -78,7 +78,10 @@ def main() -> int:
             fails.append("Product Scout should not load ugc-hooks")
         if "product-scoring" not in sn:
             fails.append("Product Scout missing product-scoring")
-        print(f"\n  AgentOS ok agents={len(agent_os.agents)} teams={len(agent_os.teams)} scout_skills={sorted(sn)}")
+        print(
+            f"\n  AgentOS ok agents={len(agent_os.agents)} teams={len(agent_os.teams)} "
+            f"workflows={len(agent_os.workflows)} scout_skills={sorted(sn)}"
+        )
         # history flags
         hermes = next(a for a in agent_os.agents if a.name == "Hermes Ops")
         if not hermes.add_history_to_context:

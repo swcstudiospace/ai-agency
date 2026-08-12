@@ -9,9 +9,9 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from agno.tools import tool
 
@@ -21,7 +21,7 @@ _LOGS = _ROOT / "logs"
 
 
 def _utc() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 @tool(
@@ -31,7 +31,7 @@ def _utc() -> str:
         "artifacts, and whether Parallel/xAI env looks configured (never returns secrets)."
     ),
 )
-def agency_health() -> Dict[str, Any]:
+def agency_health() -> dict[str, Any]:
     _RUNS.mkdir(parents=True, exist_ok=True)
     reports = sorted(_RUNS.glob("product_rank_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
     return {
@@ -55,7 +55,7 @@ def agency_health() -> Dict[str, Any]:
         "use get_agentos_config for live discovery."
     ),
 )
-def agency_roster() -> Dict[str, Any]:
+def agency_roster() -> dict[str, Any]:
     return {
         "os_id": "ai-dropshipping-agency",
         "agents": {
@@ -98,7 +98,7 @@ def agency_roster() -> Dict[str, Any]:
     name="list_product_rank_reports",
     description="List autonomous product-rank JSON/MD reports under tmp/runs (newest first).",
 )
-def list_product_rank_reports(limit: int = 10) -> Dict[str, Any]:
+def list_product_rank_reports(limit: int = 10) -> dict[str, Any]:
     _RUNS.mkdir(parents=True, exist_ok=True)
     files = sorted(_RUNS.glob("product_rank_*.*"), key=lambda p: p.stat().st_mtime, reverse=True)
     out = []
@@ -109,7 +109,7 @@ def list_product_rank_reports(limit: int = 10) -> Dict[str, Any]:
                 "name": p.name,
                 "path": str(p),
                 "bytes": st.st_size,
-                "mtime": datetime.fromtimestamp(st.st_mtime, tz=timezone.utc).isoformat(),
+                "mtime": datetime.fromtimestamp(st.st_mtime, tz=UTC).isoformat(),
             }
         )
     return {"reports": out, "count": len(out)}
@@ -122,7 +122,7 @@ def list_product_rank_reports(limit: int = 10) -> Dict[str, Any]:
         "format: 'md' | 'json' | 'summary'."
     ),
 )
-def read_product_rank_report(name: str = "latest", format: str = "summary") -> Dict[str, Any]:
+def read_product_rank_report(name: str = "latest", format: str = "summary") -> dict[str, Any]:
     _RUNS.mkdir(parents=True, exist_ok=True)
     fmt = (format or "summary").lower()
     if name in {"", "latest", "latest.md", "latest.json"}:
@@ -187,7 +187,7 @@ def run_product_rank(
     skip_team: bool = False,
     default_cpa: float = 18.0,
     timeout_s: float = 3600.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     niche = (niche or "").strip()
     if not niche:
         return {"error": "niche is required"}
@@ -197,7 +197,7 @@ def run_product_rank(
 
     _RUNS.mkdir(parents=True, exist_ok=True)
     _LOGS.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     log_path = _LOGS / f"product_rank_mcp_{stamp}.log"
 
     cmd = [
@@ -253,7 +253,7 @@ def run_product_rank(
         latest = all_json[0] if all_json else None
 
     md = latest.with_suffix(".md") if latest else None
-    summary: Dict[str, Any] = {
+    summary: dict[str, Any] = {
         "exit_code": completed.returncode,
         "log": str(log_path),
         "json_report": str(latest) if latest else None,
@@ -294,7 +294,7 @@ def run_product_rank(
         "(no secrets). Use before autonomous lifecycle or ad launch."
     ),
 )
-def agency_integrations_status() -> Dict[str, Any]:
+def agency_integrations_status() -> dict[str, Any]:
     from tools.fal_tools import list_fal_avatars
     from tools.linear_tools import linear_status
     from tools.meta_ads_tools import meta_status
@@ -331,14 +331,14 @@ def run_autonomous_lifecycle(
     default_cpa: float = 18.0,
     timeout_s: float = 3600.0,
     render_ugc: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     niche = (niche or "").strip()
     if not niche:
         return {"error": "niche is required"}
     proc = (processor or "ultra").lower().strip()
     _RUNS.mkdir(parents=True, exist_ok=True)
     _LOGS.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     log_path = _LOGS / f"lifecycle_mcp_{stamp}.log"
     cmd = [
         sys.executable,
@@ -392,7 +392,7 @@ def run_autonomous_lifecycle(
         latest = allj[0] if allj else None
     md = latest.with_suffix(".md") if latest else None
     hitl = Path(str(latest).replace(".json", "_HITL_CODES.json")) if latest else None
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "exit_code": completed.returncode,
         "log": str(log_path),
         "json_report": str(latest) if latest else None,
@@ -442,7 +442,7 @@ def request_ad_spend_approval(
     campaign_draft_id: str = "",
     daily_budget_usd: float = 0.0,
     funding_source_id: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     from tools.spend_vault import request_spend_approval
 
     return request_spend_approval(
@@ -470,7 +470,7 @@ def attach_agency_funding_source(
     chain: str = "",
     address: str = "",
     daily_cap_usd: float = 100.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     from tools.spend_vault import attach_funding_source
 
     return attach_funding_source(
@@ -484,7 +484,7 @@ def attach_agency_funding_source(
     )
 
 
-def get_mcp_custom_tools() -> List[Any]:
+def get_mcp_custom_tools() -> list[Any]:
     return [
         agency_health,
         agency_roster,

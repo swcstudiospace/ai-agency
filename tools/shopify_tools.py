@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import httpx
 
@@ -24,14 +24,14 @@ API_VERSION = env("SHOPIFY_API_VERSION", "2024-10") or "2024-10"
 _TOKEN_CACHE = Path("tmp/secrets/shopify_token.json")
 
 
-def _shop_host() -> Optional[str]:
+def _shop_host() -> str | None:
     shop = (env("SHOPIFY_SHOP_NAME") or env("SHOPIFY_SHOP") or "").strip()
     if not shop:
         return None
     return shop if shop.endswith(".myshopify.com") else f"{shop}.myshopify.com"
 
 
-def _load_cached_token(host: str) -> Optional[str]:
+def _load_cached_token(host: str) -> str | None:
     try:
         if not _TOKEN_CACHE.is_file():
             return None
@@ -62,7 +62,7 @@ def _save_cached_token(host: str, access_token: str, expires_in: int = 86399) ->
         pass
 
 
-def _client_credentials_token(host: str) -> Optional[str]:
+def _client_credentials_token(host: str) -> str | None:
     """Exchange Dev Dashboard client id/secret for a short-lived Admin token."""
     client_id = env("SHOPIFY_CLIENT_ID") or env("SHOPIFY_API_KEY")
     client_secret = env("SHOPIFY_CLIENT_SECRET") or env("SHOPIFY_API_SECRET")
@@ -93,7 +93,7 @@ def _client_credentials_token(host: str) -> Optional[str]:
         return None
 
 
-def _shop_config() -> Optional[Tuple[str, str]]:
+def _shop_config() -> tuple[str, str] | None:
     host = _shop_host()
     if not host:
         return None
@@ -106,7 +106,7 @@ def _shop_config() -> Optional[Tuple[str, str]]:
     return None
 
 
-def shopify_status() -> Dict[str, Any]:
+def shopify_status() -> dict[str, Any]:
     host = _shop_host()
     cfg = _shop_config()
     if not host:
@@ -154,14 +154,14 @@ def draft_product(
     title: str,
     body_html: str,
     price: str,
-    tags: Optional[List[str]] = None,
+    tags: list[str] | None = None,
     vendor: str = "Agency",
     status: str = "draft",
     product_type: str = "",
-    images: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    images: list[str] | None = None,
+) -> dict[str, Any]:
     """Create a product (default status=draft). status=active blocked at L2 by guardrails."""
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "product": {
             "title": title,
             "body_html": body_html,
@@ -199,7 +199,7 @@ def draft_product(
     return {"error": data, "status_code": resp.status_code, "stub": False}
 
 
-def update_product(product_id: str, **fields: Any) -> Dict[str, Any]:
+def update_product(product_id: str, **fields: Any) -> dict[str, Any]:
     cfg = _shop_config()
     if not cfg:
         return {"stub": True, "id": product_id, "updated": fields}
@@ -212,7 +212,7 @@ def update_product(product_id: str, **fields: Any) -> Dict[str, Any]:
     return data.get("product") or data
 
 
-def list_products(limit: int = 10, status: str = "") -> Dict[str, Any]:
+def list_products(limit: int = 10, status: str = "") -> dict[str, Any]:
     cfg = _shop_config()
     if not cfg:
         print("[Shopify STUB] list_products")
@@ -232,7 +232,7 @@ def list_products(limit: int = 10, status: str = "") -> Dict[str, Any]:
     return data
 
 
-def list_orders(limit: int = 10, status: str = "any") -> Dict[str, Any]:
+def list_orders(limit: int = 10, status: str = "any") -> dict[str, Any]:
     cfg = _shop_config()
     if not cfg:
         return {"orders": [], "stub": True}
@@ -244,10 +244,10 @@ def list_orders(limit: int = 10, status: str = "any") -> Dict[str, Any]:
 
 
 def create_draft_order(
-    line_items: List[Dict[str, Any]],
+    line_items: list[dict[str, Any]],
     email: str = "",
     note: str = "agency draft",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a Shopify draft order (not a paid order)."""
     cfg = _shop_config()
     payload = {"draft_order": {"line_items": line_items, "note": note}}
@@ -262,7 +262,7 @@ def create_draft_order(
         return client.post(url, headers=headers, json=payload).json()
 
 
-def shopify_domain_plan(primary_domain: str = "") -> Dict[str, Any]:
+def shopify_domain_plan(primary_domain: str = "") -> dict[str, Any]:
     """DNS + Shopify domain attach plan for brand domain (e.g. ego.engineer)."""
     domain = (primary_domain or env("AGENCY_PRIMARY_DOMAIN") or env("SHOPIFY_PRIMARY_DOMAIN") or "ego.engineer").strip()
     host = _shop_host() or "YOUR-STORE.myshopify.com"
@@ -307,7 +307,7 @@ def shopify_domain_plan(primary_domain: str = "") -> Dict[str, Any]:
     }
 
 
-def shopify_bootstrap_checklist() -> Dict[str, Any]:
+def shopify_bootstrap_checklist() -> dict[str, Any]:
     """Bare-account → launch checklist for AI Dropshipping Agency / ego.engineer."""
     status = shopify_status()
     domain = env("AGENCY_PRIMARY_DOMAIN") or "ego.engineer"
@@ -350,7 +350,7 @@ def shopify_create_policy_pages(
     shipping_html: str = "",
     refund_html: str = "",
     privacy_html: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create basic policy pages as drafts (live requires auth + HITL publish)."""
     brand = env("SHOPIFY_SHOP_DISPLAY_NAME") or "AI Dropshipping Agency"
     domain = env("AGENCY_PRIMARY_DOMAIN") or "ego.engineer"

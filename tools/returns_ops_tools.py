@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 def returns_policy_check(
@@ -12,7 +12,7 @@ def returns_policy_check(
     opened: bool = True,
     has_photos: bool = False,
     window_days: int = 30,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Evaluate RMA eligibility against default policy (override per brand later)."""
     in_window = days_since_delivery <= window_days
     eligible = in_window
@@ -44,7 +44,7 @@ def returns_cost_estimate(
     reverse_ship_usd: float = 8.0,
     restockable: bool = False,
     refund_usd: float = 0.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Estimate CM impact of a return path."""
     recovered = float(item_cogs_usd) if restockable else 0.0
     cost = float(refund_usd) + float(reverse_ship_usd) - recovered
@@ -63,7 +63,7 @@ def returns_draft_rma(
     disposition: str,
     reason_code: str = "",
     customer_message: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create an internal RMA draft record (Shopify execution is HITL/API when configured)."""
     rid = f"rma_{uuid.uuid4().hex[:10]}"
     msg = customer_message or (

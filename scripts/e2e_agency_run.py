@@ -10,10 +10,9 @@ from __future__ import annotations
 import json
 import os
 import sys
-import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -38,14 +37,14 @@ from tools.xai_oauth_pkce import get_xai_token_or_fallback
 
 
 def utc() -> str:
-    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
 
 def main() -> int:
     stamp = utc()
     out_dir = ROOT / "tmp" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
-    report: Dict[str, Any] = {
+    report: dict[str, Any] = {
         "meta": {
             "stamp": stamp,
             "niche": os.getenv("E2E_NICHE")
@@ -62,7 +61,7 @@ def main() -> int:
     print(f"niche={niche} processor={processor} grok={DEFAULT_GROK_MODEL}")
 
     # 0) auth probes
-    stages: Dict[str, Any] = {}
+    stages: dict[str, Any] = {}
     try:
         tok = get_xai_token_or_fallback()
         m = get_grok_model()

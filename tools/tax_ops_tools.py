@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
-def tax_nexus_checklist(regions: Optional[List[str]] = None) -> Dict[str, Any]:
+def tax_nexus_checklist(regions: list[str] | None = None) -> dict[str, Any]:
     """High-level nexus/VAT checklist by region code (research starting point)."""
     regions = regions or ["US-CA", "US-NY", "US-TX"]
     rows = []
@@ -20,7 +20,7 @@ def tax_nexus_checklist(regions: Optional[List[str]] = None) -> Dict[str, Any]:
     return {"ok": True, "regions": rows, "disclaimer": "Not legal advice; human CPA required."}
 
 
-def tax_geo_expansion_gate(region: str, collection_configured: bool = False, cpa_reviewed: bool = False) -> Dict[str, Any]:
+def tax_geo_expansion_gate(region: str, collection_configured: bool = False, cpa_reviewed: bool = False) -> dict[str, Any]:
     """Gate geo expansion: OK | ATTENTION | BLOCK_SHIP."""
     r = (region or "").upper()
     if r.startswith("EU") and not collection_configured:
@@ -40,7 +40,7 @@ def tax_geo_expansion_gate(region: str, collection_configured: bool = False, cpa
     }
 
 
-def tax_document_pack(regions: Optional[List[str]] = None) -> Dict[str, Any]:
+def tax_document_pack(regions: list[str] | None = None) -> dict[str, Any]:
     """Documents to assemble for human tax counsel."""
     return {
         "ok": True,

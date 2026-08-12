@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def cx_severity_score(
@@ -11,7 +11,7 @@ def cx_severity_score(
     amount_usd: float = 0.0,
     legal_language: bool = False,
     repeat_contacts: int = 1,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Score escalation severity."""
     score = 20 + min(40, repeat_contacts * 8)
     if amount_usd >= 100:
@@ -38,9 +38,9 @@ def cx_resolution_options(
     severity: str = "medium",
     order_value_usd: float = 0.0,
     policy_refund_ok: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """List resolution options with HITL flags."""
-    opts: List[Dict[str, Any]] = [
+    opts: list[dict[str, Any]] = [
         {"option": "proactive_tracking_update", "hitl": False, "cm_impact": "low"},
         {"option": "partial_goodwill_credit", "hitl": order_value_usd > 25, "cm_impact": "medium"},
         {"option": "full_refund", "hitl": not policy_refund_ok or order_value_usd > 50, "cm_impact": "high"},
@@ -55,7 +55,7 @@ def cx_draft_reply(
     customer_name: str = "there",
     situation: str = "",
     resolution: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Draft empathetic escalation reply (human sends)."""
     body = (
         f"Hi {customer_name},\n\n"

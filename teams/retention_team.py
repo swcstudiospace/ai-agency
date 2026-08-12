@@ -2,6 +2,7 @@
 
 from agents.customer_success import customer_success
 from agents.email_crm import email_crm
+
 from teams._factory import build_team
 
 retention_team = build_team(

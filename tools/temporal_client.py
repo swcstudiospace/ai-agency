@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 
-def start_workflow(workflow_name: str, args: Optional[dict] = None) -> str:
+def start_workflow(workflow_name: str, args: dict | None = None) -> str:
     print(f"[Temporal STUB] Would start workflow: {workflow_name} args={args}")
     return "temporal-stub-run-id"
 

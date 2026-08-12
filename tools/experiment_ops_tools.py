@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def experiment_design(
@@ -10,8 +10,8 @@ def experiment_design(
     primary_metric: str = "cvr",
     baseline_rate: float = 0.02,
     mde_rel: float = 0.15,
-    variants: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    variants: list[str] | None = None,
+) -> dict[str, Any]:
     """Draft experiment design with rough sample guidance."""
     # very rough rule-of-thumb sample per variant
     p = max(0.001, baseline_rate)
@@ -29,7 +29,7 @@ def experiment_design(
     }
 
 
-def experiment_ice_score(impact: float = 5, confidence: float = 5, ease: float = 5) -> Dict[str, Any]:
+def experiment_ice_score(impact: float = 5, confidence: float = 5, ease: float = 5) -> dict[str, Any]:
     """ICE prioritization (1-10 each)."""
     for name, v in [("impact", impact), ("confidence", confidence), ("ease", ease)]:
         if not 1 <= float(v) <= 10:
@@ -43,7 +43,7 @@ def experiment_decision_rule(
     min_lift: float = 0.1,
     guardrail_refund_rate_max: float = 0.08,
     guardrail_min_roas: float = 1.5,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Pre-register win/kill rules."""
     return {
         "ok": True,

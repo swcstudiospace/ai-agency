@@ -12,10 +12,10 @@ from __future__ import annotations
 
 import json
 import time
-import uuid
 import urllib.parse
+import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from tools.envutil import env
 
@@ -33,7 +33,7 @@ def draft_supplier_outreach_email(
     sample_qty: int = 1,
     from_name: str = "",
     ask_dropship: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Write a professional sample / dropship inquiry email (HITL — do not auto-send)."""
     brand = brand_name or env("SHOPIFY_SHOP_DISPLAY_NAME") or env("AGENCY_BRAND_NAME") or "AI Dropshipping Agency"
     sender = from_name or env("OUTREACH_FROM_NAME") or "Sourcing"
@@ -123,14 +123,14 @@ def open_gmail_compose(
     body: str,
     to: str = "",
     screenshot: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Open Gmail compose via Hermes reverse-bridge browser (HITL send).
 
     Operator must already be logged into Gmail in the bridge Playwright profile,
     or log in when the page opens.
     """
     url = gmail_compose_url(to=to, subject=subject, body=body)
-    result: Dict[str, Any] = {
+    result: dict[str, Any] = {
         "ok": False,
         "mode": "browser",
         "url": url,
@@ -169,7 +169,7 @@ def draft_and_open_outreach(
     moq: float = 1,
     open_browser: bool = True,
     to_email: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Draft email + optionally open Gmail compose for human send."""
     draft = draft_supplier_outreach_email(
         product_name=product_name,
@@ -178,7 +178,7 @@ def draft_and_open_outreach(
         unit_cost_usd=unit_cost_usd,
         moq=moq,
     )
-    out: Dict[str, Any] = {"draft": draft, "browser": None}
+    out: dict[str, Any] = {"draft": draft, "browser": None}
     if open_browser and (env("OUTREACH_BROWSER_ENABLED") or "1") not in {"0", "false", "no"}:
         out["browser"] = open_gmail_compose(
             subject=draft["subject"],
@@ -192,9 +192,9 @@ def batch_outreach_from_locate(
     locate_json_path: str = "",
     top_n: int = 2,
     open_browser: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Load latest product_locate_*.json and draft outreach for top suppliers."""
-    path: Optional[Path] = Path(locate_json_path) if locate_json_path else None
+    path: Path | None = Path(locate_json_path) if locate_json_path else None
     if not path or not path.is_file():
         runs = sorted(Path("tmp/runs").glob("product_locate_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
         path = runs[0] if runs else None

@@ -22,9 +22,9 @@ import os
 import re
 import sys
 import traceback
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -38,8 +38,7 @@ from tools.economics_tools import contribution_margin, price_ladder
 from tools.parallel_tools import parallel_search, parallel_task
 from tools.supplier_tools import score_supplier
 
-
-PRODUCT_SCHEMA: Dict[str, Any] = {
+PRODUCT_SCHEMA: dict[str, Any] = {
     "type": "json",
     "json_schema": {
         "type": "object",
@@ -104,7 +103,7 @@ PRODUCT_SCHEMA: Dict[str, Any] = {
 
 
 def _utc() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _risk_score(level: str) -> float:
@@ -115,7 +114,7 @@ def _competition_score(level: str) -> float:
     return {"low": 1.0, "medium": 0.55, "high": 0.2}.get((level or "medium").lower(), 0.55)
 
 
-def score_candidate(c: Dict[str, Any], default_cpa: float = 18.0) -> Dict[str, Any]:
+def score_candidate(c: dict[str, Any], default_cpa: float = 18.0) -> dict[str, Any]:
     cogs = float(c.get("estimated_cogs_usd") or 0)
     ship = float(c.get("shipping_usd") or max(3.0, cogs * 0.35))
     price = float(c.get("suggested_price_usd") or 0)
@@ -181,7 +180,7 @@ def score_candidate(c: Dict[str, Any], default_cpa: float = 18.0) -> Dict[str, A
     }
 
 
-def parse_task_output(output: Any) -> Dict[str, Any]:
+def parse_task_output(output: Any) -> dict[str, Any]:
     if output is None:
         return {}
     if isinstance(output, dict):
@@ -212,7 +211,7 @@ def parse_task_output(output: Any) -> Dict[str, Any]:
     return {"market_summary": str(output)[:2000], "candidates": []}
 
 
-def run_research_team(niche: str, ranked: List[Dict[str, Any]], market_summary: str) -> str:
+def run_research_team(niche: str, ranked: list[dict[str, Any]], market_summary: str) -> str:
     """Ask Research Team to finalize ranking using Parallel-backed agents."""
     try:
         from teams.research_team import research_team
@@ -268,7 +267,7 @@ Return markdown with:
         return f"[Research Team run failed: {e}]\n{traceback.format_exc()}"
 
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Autonomous product find/rank with Parallel ultra")
     p.add_argument(
         "--niche",
@@ -283,11 +282,11 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     out_dir = ROOT / "tmp" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     report_path = out_dir / f"product_rank_{stamp}.json"
     md_path = out_dir / f"product_rank_{stamp}.md"
 
-    print(f"=== Autonomous product rank ===")
+    print("=== Autonomous product rank ===")
     print(f"niche: {args.niche}")
     print(f"processor: {args.processor}")
     print(f"started: {_utc()}")
@@ -444,7 +443,7 @@ Return structured JSON matching the schema. Rank candidates best-first. Include 
         lines.extend(["## Research Team synthesis", "", team_md, ""])
     md_path.write_text("\n".join(lines) + "\n")
 
-    print(f"\n=== done ===")
+    print("\n=== done ===")
     print(f"JSON: {report_path}")
     print(f"MD:   {md_path}")
     go = [c for c in ranked if c.get("decision") == "GO"]

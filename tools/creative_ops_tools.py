@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def creative_ops_variant_matrix(
     product: str,
-    hooks: Optional[List[str]] = None,
-    angles: Optional[List[str]] = None,
-    formats: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    hooks: list[str] | None = None,
+    angles: list[str] | None = None,
+    formats: list[str] | None = None,
+) -> dict[str, Any]:
     """Build hook × angle × format variant matrix for ad testing."""
     hooks = hooks or [
         "pain_agitation",
@@ -36,10 +36,10 @@ def creative_ops_variant_matrix(
 
 
 def creative_ops_queue_board(
-    ready: Optional[List[str]] = None,
-    in_production: Optional[List[str]] = None,
-    blockers: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    ready: list[str] | None = None,
+    in_production: list[str] | None = None,
+    blockers: list[str] | None = None,
+) -> dict[str, Any]:
     """Summarize 48h creative ship list."""
     return {
         "ok": True,

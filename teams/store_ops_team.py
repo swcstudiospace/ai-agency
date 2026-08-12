@@ -3,6 +3,7 @@
 from agents.compliance_officer import compliance_officer
 from agents.listing_specialist import listing_specialist
 from agents.store_builder import store_builder
+
 from teams._factory import build_team
 
 store_ops_team = build_team(

@@ -2,18 +2,21 @@ import os
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
-from agno.db.sqlite import SqliteDb
-from agno.os import AgentOS
-from agno.os.config import MCPServerConfig
+# ── ops 12
+from agents.ads_creative_ops import ads_creative_ops
 
 # ── original 18
 from agents.analyst import analyst
 from agents.brand_strategist import brand_strategist
+from agents.catalog_ops import catalog_ops
+from agents.chargeback_specialist import chargeback_specialist
+from agents.community_manager import community_manager
 from agents.compliance_officer import compliance_officer
 from agents.creative_director import creative_director
 from agents.customer_success import customer_success
+from agents.cx_escalations import cx_escalations
 from agents.email_crm import email_crm
+from agents.experimentation_lead import experimentation_lead
 from agents.finance_controller import finance_controller
 from agents.fulfillment_ops import fulfillment_ops
 from agents.growth_media_buyer import growth_media_buyer
@@ -21,24 +24,22 @@ from agents.hermes_ops import hermes_ops
 from agents.influencer_manager import influencer_manager
 from agents.inventory_planner import inventory_planner
 from agents.listing_specialist import listing_specialist
-from agents.pricing_strategist import pricing_strategist
-from agents.product_scout import product_scout
-from agents.seo_content import seo_content
-from agents.store_builder import store_builder
-from agents.supplier_sourcer import supplier_sourcer
-# ── ops 12
-from agents.ads_creative_ops import ads_creative_ops
-from agents.catalog_ops import catalog_ops
-from agents.chargeback_specialist import chargeback_specialist
-from agents.community_manager import community_manager
-from agents.cx_escalations import cx_escalations
-from agents.experimentation_lead import experimentation_lead
 from agents.logistics_coordinator import logistics_coordinator
 from agents.partnerships_manager import partnerships_manager
+from agents.pricing_strategist import pricing_strategist
+from agents.product_scout import product_scout
 from agents.qa_inspector import qa_inspector
 from agents.returns_specialist import returns_specialist
 from agents.risk_fraud_analyst import risk_fraud_analyst
+from agents.seo_content import seo_content
+from agents.store_builder import store_builder
+from agents.supplier_sourcer import supplier_sourcer
 from agents.tax_compliance import tax_compliance
+from agno.db.sqlite import SqliteDb
+from agno.os import AgentOS
+from agno.os.config import MCPServerConfig
+from dotenv import load_dotenv
+
 # ── teams 7 + 5
 from teams.agency_director import agency_director_team
 from teams.creative_team import creative_team
@@ -53,6 +54,7 @@ from teams.risk_finance_ops_team import risk_finance_ops_team
 from teams.store_ops_team import store_ops_team
 from teams.supply_chain_team import supply_chain_team
 from tools.mcp_custom import get_mcp_custom_tools
+
 # ── workflows 5 + 5
 from workflows.creative_production_ops import creative_production_ops_workflow
 from workflows.experimentation_cycle import experimentation_cycle_workflow

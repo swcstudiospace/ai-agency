@@ -1,5 +1,4 @@
 from agno.workflow import Step, Workflow
-
 from teams.research_team import research_team
 from teams.supply_chain_team import supply_chain_team
 

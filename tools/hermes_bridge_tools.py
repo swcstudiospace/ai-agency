@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 
@@ -20,7 +20,7 @@ BRIDGE_BASE = BRIDGE[: -4] if BRIDGE.endswith("/mcp") else BRIDGE
 
 class _MCPSession:
     def __init__(self) -> None:
-        self.session_id: Optional[str] = None
+        self.session_id: str | None = None
         self._client = httpx.Client(timeout=120.0)
 
     def close(self) -> None:
@@ -67,7 +67,7 @@ class _MCPSession:
         except Exception:
             pass
 
-    def call_tool(self, name: str, arguments: Optional[dict] = None) -> Dict[str, Any]:
+    def call_tool(self, name: str, arguments: dict | None = None) -> dict[str, Any]:
         self.ensure()
         r = self._client.post(
             BRIDGE,
@@ -117,7 +117,7 @@ class _MCPSession:
 _SESSION = _MCPSession()
 
 
-def _call(tool_name: str, **kwargs) -> Dict[str, Any]:
+def _call(tool_name: str, **kwargs) -> dict[str, Any]:
     try:
         return _SESSION.call_tool(tool_name, kwargs)
     except Exception as e:
@@ -127,40 +127,40 @@ def _call(tool_name: str, **kwargs) -> Dict[str, Any]:
 # Thin wrappers — names match bridge tools for agent clarity
 
 
-def hermes_browser_navigate(url: str, wait_until: str = "domcontentloaded", timeout_ms: int = 30000) -> Dict[str, Any]:
+def hermes_browser_navigate(url: str, wait_until: str = "domcontentloaded", timeout_ms: int = 30000) -> dict[str, Any]:
     """Browse a URL via Hermes reverse bridge (Playwright)."""
     return _call("hermes_browser_navigate", url=url, wait_until=wait_until, timeout_ms=timeout_ms)
 
 
-def hermes_browser_snapshot(url: str, selector: str = "body") -> Dict[str, Any]:
+def hermes_browser_snapshot(url: str, selector: str = "body") -> dict[str, Any]:
     """Snapshot page text/html via Hermes bridge."""
     return _call("hermes_browser_snapshot", url=url, selector=selector)
 
 
-def hermes_browser_screenshot(url: str, full_page: bool = False) -> Dict[str, Any]:
+def hermes_browser_screenshot(url: str, full_page: bool = False) -> dict[str, Any]:
     """Screenshot URL via Hermes bridge."""
     return _call("hermes_browser_screenshot", url=url, full_page=full_page)
 
 
-def hermes_browser_extract_links(url: str, limit: int = 40) -> Dict[str, Any]:
+def hermes_browser_extract_links(url: str, limit: int = 40) -> dict[str, Any]:
     return _call("hermes_browser_extract_links", url=url, limit=limit)
 
 
-def hermes_skill_list(limit: int = 50, query: str = "") -> Dict[str, Any]:
+def hermes_skill_list(limit: int = 50, query: str = "") -> dict[str, Any]:
     """List Hermes self-improving skills available on disk."""
     return _call("hermes_skill_list", limit=limit, query=query)
 
 
-def hermes_skill_read(name: str) -> Dict[str, Any]:
+def hermes_skill_read(name: str) -> dict[str, Any]:
     """Read a Hermes skill playbook."""
     return _call("hermes_skill_read", name=name)
 
 
-def hermes_skill_search(query: str, limit: int = 20) -> Dict[str, Any]:
+def hermes_skill_search(query: str, limit: int = 20) -> dict[str, Any]:
     return _call("hermes_skill_search", query=query, limit=limit)
 
 
-def hermes_skill_propose(name: str, rationale: str, patch_markdown: str, skill_name: str = "") -> Dict[str, Any]:
+def hermes_skill_propose(name: str, rationale: str, patch_markdown: str, skill_name: str = "") -> dict[str, Any]:
     """Propose a skill improvement for Hermes curator (self-improving loop)."""
     return _call(
         "hermes_skill_propose",
@@ -171,59 +171,59 @@ def hermes_skill_propose(name: str, rationale: str, patch_markdown: str, skill_n
     )
 
 
-def hermes_memory_read(which: str = "memory") -> Dict[str, Any]:
+def hermes_memory_read(which: str = "memory") -> dict[str, Any]:
     return _call("hermes_memory_read", which=which)
 
 
-def hermes_memory_append(entry: str, which: str = "memory") -> Dict[str, Any]:
+def hermes_memory_append(entry: str, which: str = "memory") -> dict[str, Any]:
     return _call("hermes_memory_append", entry=entry, which=which)
 
 
-def kip_remember(text: str, kind: str = "Insight", name: str = "", link: str = "") -> Dict[str, Any]:
+def kip_remember(text: str, kind: str = "Insight", name: str = "", link: str = "") -> dict[str, Any]:
     """Store shared fact in KIP Cognitive Nexus (Anda/KIP; ICP-exportable)."""
     return _call("kip_remember", text=text, kind=kind, name=name, link=link)
 
 
-def kip_recall(query: str, limit: int = 15) -> Dict[str, Any]:
+def kip_recall(query: str, limit: int = 15) -> dict[str, Any]:
     """Recall from shared KIP graph memory."""
     return _call("kip_recall", query=query, limit=limit)
 
 
-def kip_execute(command: str) -> Dict[str, Any]:
+def kip_execute(command: str) -> dict[str, Any]:
     """Raw KIP command (FIND/UPSERT/DESCRIBE PRIMER/EXPORT)."""
     return _call("kip_execute", command=command)
 
 
-def kip_export_icp(label: str = "agency") -> Dict[str, Any]:
+def kip_export_icp(label: str = "agency") -> dict[str, Any]:
     """Export KIP capsule + ICP receipt/sync."""
     return _call("kip_export_icp", label=label)
 
 
-def hermes_computer_use_request(goal: str, app: str = "", notes: str = "") -> Dict[str, Any]:
+def hermes_computer_use_request(goal: str, app: str = "", notes: str = "") -> dict[str, Any]:
     """Request Hermes top-orchestrator computer-use job (desktop CUA)."""
     return _call("hermes_computer_use_request", goal=goal, app=app, notes=notes)
 
 
-def hermes_computer_use_list_jobs(status: str = "pending") -> Dict[str, Any]:
+def hermes_computer_use_list_jobs(status: str = "pending") -> dict[str, Any]:
     return _call("hermes_computer_use_list_jobs", status=status)
 
 
 
 
-def anda_brain_formation(text: str, counterparty: str = "", agent: str = "agency") -> Dict[str, Any]:
+def anda_brain_formation(text: str, counterparty: str = "", agent: str = "agency") -> dict[str, Any]:
     """Encode conversation into KIP via bridge."""
     return _call("anda_brain_formation", text=text, counterparty=counterparty, agent=agent)
 
 
-def anda_brain_recall(query: str, limit: int = 15) -> Dict[str, Any]:
+def anda_brain_recall(query: str, limit: int = 15) -> dict[str, Any]:
     return _call("anda_brain_recall", query=query, limit=limit)
 
 
-def anda_brain_sleep() -> Dict[str, Any]:
+def anda_brain_sleep() -> dict[str, Any]:
     return _call("anda_brain_sleep")
 
 
-def anda_brain_bootstrap() -> Dict[str, Any]:
+def anda_brain_bootstrap() -> dict[str, Any]:
     return _call("anda_brain_bootstrap")
 
 def get_hermes_bridge_tools() -> list:

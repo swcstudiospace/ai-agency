@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence
 
 _ROOT = Path(__file__).resolve().parents[1]
 PROMPTS_ROOT = _ROOT / "prompts"
@@ -32,9 +32,9 @@ def load_prompt_file(persona: str, filename: str, *, required: bool = True) -> s
     return text
 
 
-def load_persona_sections(persona: str) -> Dict[str, str]:
+def load_persona_sections(persona: str) -> dict[str, str]:
     """Return soul/system/output/examples markdown bodies."""
-    out: Dict[str, str] = {}
+    out: dict[str, str] = {}
     for filename, key in _SECTION_FILES:
         # EXAMPLES optional for some agents
         required = filename != "EXAMPLES.md"
@@ -42,10 +42,10 @@ def load_persona_sections(persona: str) -> Dict[str, str]:
     return out
 
 
-def build_instructions(persona: str, *, extra: Optional[Sequence[str]] = None) -> List[str]:
+def build_instructions(persona: str, *, extra: Sequence[str] | None = None) -> list[str]:
     """Compose Agent.instructions from SOUL + SYSTEM (+ optional extras)."""
     sections = load_persona_sections(persona)
-    blocks: List[str] = []
+    blocks: list[str] = []
     if sections.get("soul"):
         blocks.append("# SOUL (identity & non-negotiables)\n\n" + sections["soul"])
     if sections.get("system"):
@@ -55,13 +55,13 @@ def build_instructions(persona: str, *, extra: Optional[Sequence[str]] = None) -
     return blocks
 
 
-def build_expected_output(persona: str) -> Optional[str]:
+def build_expected_output(persona: str) -> str | None:
     sections = load_persona_sections(persona)
     text = sections.get("output") or ""
     return text or None
 
 
-def build_additional_input(persona: str) -> Optional[List[str]]:
+def build_additional_input(persona: str) -> list[str] | None:
     """Few-shot / examples injected after system message."""
     sections = load_persona_sections(persona)
     ex = sections.get("examples") or ""
@@ -70,7 +70,7 @@ def build_additional_input(persona: str) -> Optional[List[str]]:
     return ["# EXAMPLES (few-shot — match quality and structure)\n\n" + ex]
 
 
-def list_personas() -> List[str]:
+def list_personas() -> list[str]:
     if not PROMPTS_ROOT.is_dir():
         return []
     return sorted(

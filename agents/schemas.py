@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -36,9 +35,9 @@ class UnitEconomicsSnapshot(BaseModel):
     cogs_usd: float
     shipping_usd: float
     target_cpa_usd: float = 18.0
-    contribution_margin_usd: Optional[float] = None
-    contribution_margin_pct: Optional[float] = None
-    min_roas: Optional[float] = None
+    contribution_margin_usd: float | None = None
+    contribution_margin_pct: float | None = None
+    min_roas: float | None = None
     assumptions: str = ""
 
 
@@ -57,7 +56,7 @@ class ProductCandidate(BaseModel):
     risks: str = ""
     kill_criteria: str = ""
     next_experiment: str = ""
-    evidence: List[EvidenceLink] = Field(default_factory=list)
+    evidence: list[EvidenceLink] = Field(default_factory=list)
     confidence_0_to_1: float = Field(0.5, ge=0, le=1)
     compliance_notes: str = ""
 
@@ -67,9 +66,9 @@ class ProductCandidateBatch(BaseModel):
 
     market_summary: str
     niche: str = ""
-    candidates: List[ProductCandidate] = Field(default_factory=list)
-    recommended_first_test: Optional[str] = None
-    open_questions: List[str] = Field(default_factory=list)
+    candidates: list[ProductCandidate] = Field(default_factory=list)
+    recommended_first_test: str | None = None
+    open_questions: list[str] = Field(default_factory=list)
 
 
 class SupplierScorecard(BaseModel):
@@ -79,15 +78,15 @@ class SupplierScorecard(BaseModel):
     lead_time_days: int
     moq: int
     recommend: bool
-    red_flags: List[str] = Field(default_factory=list)
+    red_flags: list[str] = Field(default_factory=list)
     notes: str = ""
-    evidence: List[EvidenceLink] = Field(default_factory=list)
+    evidence: list[EvidenceLink] = Field(default_factory=list)
 
 
 class SupplierShortlist(BaseModel):
     product_name: str
-    suppliers: List[SupplierScorecard] = Field(default_factory=list)
-    recommended: Optional[str] = None
+    suppliers: list[SupplierScorecard] = Field(default_factory=list)
+    recommended: str | None = None
     test_order_plan: str = ""
     backup_plan: str = ""
 
@@ -95,23 +94,23 @@ class SupplierShortlist(BaseModel):
 class PriceOfferPlan(BaseModel):
     product_name: str
     list_price_usd: float
-    compare_at_usd: Optional[float] = None
-    bundle_options: List[str] = Field(default_factory=list)
-    free_shipping_threshold_usd: Optional[float] = None
+    compare_at_usd: float | None = None
+    bundle_options: list[str] = Field(default_factory=list)
+    free_shipping_threshold_usd: float | None = None
     economics: UnitEconomicsSnapshot
-    ab_tests: List[str] = Field(default_factory=list)
+    ab_tests: list[str] = Field(default_factory=list)
     rationale: str = ""
 
 
 class BrandPositioning(BaseModel):
-    brand_name_options: List[str] = Field(default_factory=list)
+    brand_name_options: list[str] = Field(default_factory=list)
     avatar: str
     promise: str
-    proof_pillars: List[str] = Field(default_factory=list)
-    voice_do: List[str] = Field(default_factory=list)
-    voice_dont: List[str] = Field(default_factory=list)
+    proof_pillars: list[str] = Field(default_factory=list)
+    voice_do: list[str] = Field(default_factory=list)
+    voice_dont: list[str] = Field(default_factory=list)
     competitive_frame: str = ""
-    tagline_options: List[str] = Field(default_factory=list)
+    tagline_options: list[str] = Field(default_factory=list)
 
 
 class CreativeConcept(BaseModel):
@@ -121,9 +120,9 @@ class CreativeConcept(BaseModel):
     angle: str
     script_15s: str = ""
     script_30s: str = ""
-    on_screen_text: List[str] = Field(default_factory=list)
+    on_screen_text: list[str] = Field(default_factory=list)
     cta: str = ""
-    formats: List[str] = Field(default_factory=list)
+    formats: list[str] = Field(default_factory=list)
     compliance_notes: str = ""
     hypothesis: str = ""
 
@@ -131,17 +130,17 @@ class CreativeConcept(BaseModel):
 class CreativeBriefBatch(BaseModel):
     product_name: str
     avatar: str
-    concepts: List[CreativeConcept] = Field(default_factory=list)
+    concepts: list[CreativeConcept] = Field(default_factory=list)
     production_notes: str = ""
 
 
 class ListingPackage(BaseModel):
     product_name: str
     title: str
-    bullets: List[str] = Field(default_factory=list)
+    bullets: list[str] = Field(default_factory=list)
     description_html_outline: str = ""
-    faq: List[str] = Field(default_factory=list)
-    image_order: List[str] = Field(default_factory=list)
+    faq: list[str] = Field(default_factory=list)
+    image_order: list[str] = Field(default_factory=list)
     seo_title: str = ""
     seo_description: str = ""
     price_usd: float
@@ -152,10 +151,10 @@ class ComplianceReview(BaseModel):
     asset_type: str = Field(..., description="creative|pdp|email|landing|offer")
     asset_name: str = ""
     verdict: ComplianceVerdict
-    issues: List[str] = Field(default_factory=list)
-    required_rewrites: List[str] = Field(default_factory=list)
-    allowed_claims: List[str] = Field(default_factory=list)
-    blocked_claims: List[str] = Field(default_factory=list)
+    issues: list[str] = Field(default_factory=list)
+    required_rewrites: list[str] = Field(default_factory=list)
+    allowed_claims: list[str] = Field(default_factory=list)
+    blocked_claims: list[str] = Field(default_factory=list)
     policy_notes: str = ""
 
 
@@ -168,8 +167,8 @@ class CampaignPlan(BaseModel):
     kill_roas: float
     scale_roas: float
     structure_notes: str = ""
-    audiences: List[str] = Field(default_factory=list)
-    creative_ids_or_names: List[str] = Field(default_factory=list)
+    audiences: list[str] = Field(default_factory=list)
+    creative_ids_or_names: list[str] = Field(default_factory=list)
     kill_criteria: str = ""
     autonomy_level: str = "L2"
     requires_human_approval: bool = True
@@ -178,7 +177,7 @@ class CampaignPlan(BaseModel):
 class EmailFlowSpec(BaseModel):
     flow_name: str
     trigger: str
-    emails: List[str] = Field(default_factory=list)
+    emails: list[str] = Field(default_factory=list)
     goals: str = ""
     compliance_notes: str = ""
     cm_impact_notes: str = ""
@@ -186,13 +185,13 @@ class EmailFlowSpec(BaseModel):
 
 class EmailLifecyclePlan(BaseModel):
     product_or_brand: str
-    flows: List[EmailFlowSpec] = Field(default_factory=list)
+    flows: list[EmailFlowSpec] = Field(default_factory=list)
     sms_rules: str = ""
 
 
 class SupportMacroPack(BaseModel):
     topic: str
-    macros: List[str] = Field(default_factory=list)
+    macros: list[str] = Field(default_factory=list)
     escalation_rules: str = ""
     policy_summary: str = ""
 
@@ -202,16 +201,16 @@ class FulfillmentSLAPlan(BaseModel):
     processing_hours_target: int = 48
     transit_guidance: str = ""
     tracking_sla: str = ""
-    exception_playbook: List[str] = Field(default_factory=list)
+    exception_playbook: list[str] = Field(default_factory=list)
     customer_eta_copy: str = ""
 
 
 class InventoryPlan(BaseModel):
     product_name: str
     test_buy_units: int
-    reorder_point_units: Optional[int] = None
-    safety_stock_units: Optional[int] = None
-    cash_at_risk_usd: Optional[float] = None
+    reorder_point_units: int | None = None
+    safety_stock_units: int | None = None
+    cash_at_risk_usd: float | None = None
     rationale: str = ""
     do_not_bulk_until: str = ""
 
@@ -225,10 +224,10 @@ class ScorecardKPI(BaseModel):
 
 class WeeklyScorecard(BaseModel):
     period: str
-    kpis: List[ScorecardKPI] = Field(default_factory=list)
-    wins: List[str] = Field(default_factory=list)
-    risks: List[str] = Field(default_factory=list)
-    actions: List[str] = Field(default_factory=list)
+    kpis: list[ScorecardKPI] = Field(default_factory=list)
+    wins: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    actions: list[str] = Field(default_factory=list)
     budget_recommendation: str = ""
 
 
@@ -251,35 +250,35 @@ class DirectorDecision(BaseModel):
     margin_summary: str = ""
     risk_summary: str = ""
     confidence_0_to_1: float = Field(0.5, ge=0, le=1)
-    next_actions: List[str] = Field(default_factory=list)
-    requires_human_approval: List[str] = Field(default_factory=list)
-    linear_issue_titles: List[str] = Field(default_factory=list)
+    next_actions: list[str] = Field(default_factory=list)
+    requires_human_approval: list[str] = Field(default_factory=list)
+    linear_issue_titles: list[str] = Field(default_factory=list)
 
 
 class SEOContentPlan(BaseModel):
     product_or_category: str
-    primary_keywords: List[str] = Field(default_factory=list)
-    secondary_keywords: List[str] = Field(default_factory=list)
-    page_types: List[str] = Field(default_factory=list)
+    primary_keywords: list[str] = Field(default_factory=list)
+    secondary_keywords: list[str] = Field(default_factory=list)
+    page_types: list[str] = Field(default_factory=list)
     outline: str = ""
-    internal_links: List[str] = Field(default_factory=list)
+    internal_links: list[str] = Field(default_factory=list)
 
 
 class StoreIAPlan(BaseModel):
-    homepage_sections: List[str] = Field(default_factory=list)
-    nav_items: List[str] = Field(default_factory=list)
-    trust_stack: List[str] = Field(default_factory=list)
-    policy_pages: List[str] = Field(default_factory=list)
-    mobile_priorities: List[str] = Field(default_factory=list)
-    checkout_friction_fixes: List[str] = Field(default_factory=list)
+    homepage_sections: list[str] = Field(default_factory=list)
+    nav_items: list[str] = Field(default_factory=list)
+    trust_stack: list[str] = Field(default_factory=list)
+    policy_pages: list[str] = Field(default_factory=list)
+    mobile_priorities: list[str] = Field(default_factory=list)
+    checkout_friction_fixes: list[str] = Field(default_factory=list)
 
 
 class InfluencerPlan(BaseModel):
     product_name: str
     creator_profile: str
-    outreach_angles: List[str] = Field(default_factory=list)
-    deliverables: List[str] = Field(default_factory=list)
-    budget_per_asset_usd: Optional[float] = None
+    outreach_angles: list[str] = Field(default_factory=list)
+    deliverables: list[str] = Field(default_factory=list)
+    budget_per_asset_usd: float | None = None
     usage_rights: str = ""
     compliance_notes: str = ""
 
@@ -290,25 +289,25 @@ class QAInspectionReport(BaseModel):
     sku: str
     sample_id: str = ""
     verdict: str = Field(..., description="PASS|CONDITIONAL|FAIL")
-    defects: List[str] = Field(default_factory=list)
+    defects: list[str] = Field(default_factory=list)
     measurements: str = ""
-    photos_needed: List[str] = Field(default_factory=list)
+    photos_needed: list[str] = Field(default_factory=list)
     supplier_feedback: str = ""
     ship_hold: bool = False
-    next_actions: List[str] = Field(default_factory=list)
+    next_actions: list[str] = Field(default_factory=list)
     confidence_0_to_1: float = Field(0.6, ge=0, le=1)
 
 
 class ReturnsOpsPlan(BaseModel):
     order_id: str = ""
-    reason_codes: List[str] = Field(default_factory=list)
+    reason_codes: list[str] = Field(default_factory=list)
     disposition: str = Field(..., description="refund|exchange|deny|partial")
     restockable: bool = False
     reverse_label: bool = True
     customer_message: str = ""
     cost_estimate_usd: float = 0.0
     prevention_notes: str = ""
-    next_actions: List[str] = Field(default_factory=list)
+    next_actions: list[str] = Field(default_factory=list)
 
 
 class ChargebackCasePlan(BaseModel):
@@ -316,9 +315,9 @@ class ChargebackCasePlan(BaseModel):
     reason: str = ""
     amount_usd: float = 0.0
     win_probability_0_to_1: float = Field(0.5, ge=0, le=1)
-    evidence_checklist: List[str] = Field(default_factory=list)
+    evidence_checklist: list[str] = Field(default_factory=list)
     representment_summary: str = ""
-    prevention_actions: List[str] = Field(default_factory=list)
+    prevention_actions: list[str] = Field(default_factory=list)
     recommend: str = Field(..., description="FIGHT|ACCEPT|PARTIAL")
 
 
@@ -327,10 +326,10 @@ class EscalationPlaybook(BaseModel):
     severity: RiskLevel = RiskLevel.medium
     customer_tier: str = "standard"
     root_cause: str = ""
-    resolution_options: List[str] = Field(default_factory=list)
+    resolution_options: list[str] = Field(default_factory=list)
     recommended_resolution: str = ""
     brand_risk: RiskLevel = RiskLevel.medium
-    follow_ups: List[str] = Field(default_factory=list)
+    follow_ups: list[str] = Field(default_factory=list)
 
 
 class LogisticsExceptionPlan(BaseModel):
@@ -338,7 +337,7 @@ class LogisticsExceptionPlan(BaseModel):
     exception_type: str = ""
     carrier: str = ""
     eta_revision: str = ""
-    recovery_actions: List[str] = Field(default_factory=list)
+    recovery_actions: list[str] = Field(default_factory=list)
     customer_comms: str = ""
     cost_impact_usd: float = 0.0
     escalate_to_supplier: bool = False
@@ -346,68 +345,68 @@ class LogisticsExceptionPlan(BaseModel):
 
 class CreativeOpsQueue(BaseModel):
     campaign: str = ""
-    variants_ready: List[str] = Field(default_factory=list)
-    variants_in_production: List[str] = Field(default_factory=list)
-    blockers: List[str] = Field(default_factory=list)
+    variants_ready: list[str] = Field(default_factory=list)
+    variants_in_production: list[str] = Field(default_factory=list)
+    blockers: list[str] = Field(default_factory=list)
     compliance_status: str = ""
-    next_48h_ship_list: List[str] = Field(default_factory=list)
-    ugc_requests: List[str] = Field(default_factory=list)
+    next_48h_ship_list: list[str] = Field(default_factory=list)
+    ugc_requests: list[str] = Field(default_factory=list)
 
 
 class CatalogOpsPlan(BaseModel):
-    sku_actions: List[str] = Field(default_factory=list)
-    price_fixes: List[str] = Field(default_factory=list)
-    publish_queue: List[str] = Field(default_factory=list)
-    archive_candidates: List[str] = Field(default_factory=list)
+    sku_actions: list[str] = Field(default_factory=list)
+    price_fixes: list[str] = Field(default_factory=list)
+    publish_queue: list[str] = Field(default_factory=list)
+    archive_candidates: list[str] = Field(default_factory=list)
     merchandising_notes: str = ""
-    risks: List[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
 
 
 class FraudRiskAssessment(BaseModel):
     order_id: str = ""
     risk_score_0_to_100: float = Field(..., ge=0, le=100)
-    signals: List[str] = Field(default_factory=list)
+    signals: list[str] = Field(default_factory=list)
     action: str = Field(..., description="ALLOW|REVIEW|HOLD|CANCEL")
     customer_impact: str = ""
-    evidence: List[str] = Field(default_factory=list)
+    evidence: list[str] = Field(default_factory=list)
     notes: str = ""
 
 
 class PartnershipPipeline(BaseModel):
-    opportunities: List[str] = Field(default_factory=list)
+    opportunities: list[str] = Field(default_factory=list)
     tier: str = "affiliate"
     economics_notes: str = ""
-    outreach_sequence: List[str] = Field(default_factory=list)
-    contract_flags: List[str] = Field(default_factory=list)
-    next_actions: List[str] = Field(default_factory=list)
+    outreach_sequence: list[str] = Field(default_factory=list)
+    contract_flags: list[str] = Field(default_factory=list)
+    next_actions: list[str] = Field(default_factory=list)
 
 
 class TaxComplianceBrief(BaseModel):
-    regions: List[str] = Field(default_factory=list)
+    regions: list[str] = Field(default_factory=list)
     nexus_notes: str = ""
     collection_status: str = ""
-    risks: List[str] = Field(default_factory=list)
-    required_actions: List[str] = Field(default_factory=list)
-    documentation: List[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    required_actions: list[str] = Field(default_factory=list)
+    documentation: list[str] = Field(default_factory=list)
     verdict: str = Field(..., description="OK|ATTENTION|BLOCK_SHIP")
 
 
 class CommunityOpsPlan(BaseModel):
-    channels: List[str] = Field(default_factory=list)
+    channels: list[str] = Field(default_factory=list)
     sentiment: str = ""
-    ugc_opportunities: List[str] = Field(default_factory=list)
-    crisis_flags: List[str] = Field(default_factory=list)
-    response_queue: List[str] = Field(default_factory=list)
-    content_to_amplify: List[str] = Field(default_factory=list)
+    ugc_opportunities: list[str] = Field(default_factory=list)
+    crisis_flags: list[str] = Field(default_factory=list)
+    response_queue: list[str] = Field(default_factory=list)
+    content_to_amplify: list[str] = Field(default_factory=list)
 
 
 class ExperimentBacklog(BaseModel):
     hypothesis: str
     primary_metric: str
-    secondary_metrics: List[str] = Field(default_factory=list)
-    variants: List[str] = Field(default_factory=list)
+    secondary_metrics: list[str] = Field(default_factory=list)
+    variants: list[str] = Field(default_factory=list)
     sample_size_notes: str = ""
     duration_days: int = 14
-    guardrails: List[str] = Field(default_factory=list)
+    guardrails: list[str] = Field(default_factory=list)
     decision_rule: str = ""
-    ranked_backlog: List[str] = Field(default_factory=list)
+    ranked_backlog: list[str] = Field(default_factory=list)

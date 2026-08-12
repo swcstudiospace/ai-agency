@@ -9,9 +9,9 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from tools.envutil import env, require_env
+from tools.envutil import env
 
 # Known fal endpoints for UGC-style generation
 FAL_AVATAR_T2V = env("FAL_AVATAR_ENDPOINT", "argil/avatars/text-to-video")
@@ -34,7 +34,7 @@ def _client():
     return {"mode": "fal_client", "mod": fal_client, "key": key}
 
 
-def list_fal_avatars() -> Dict[str, Any]:
+def list_fal_avatars() -> dict[str, Any]:
     """Return configured / known avatar presets for UGC generation."""
     # Argil exposes named avatars in the playground; keep a practical default set.
     presets = [
@@ -53,12 +53,12 @@ def list_fal_avatars() -> Dict[str, Any]:
 
 def generate_ugc_avatar_video(
     script: str,
-    avatar: Optional[str] = None,
-    voice: Optional[str] = None,
+    avatar: str | None = None,
+    voice: str | None = None,
     aspect_ratio: str = "9:16",
     product_name: str = "",
     hook: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate a UGC-style talking-avatar video from a script via Fal.
 
     Uses queue.submit/result when fal_client is installed; otherwise returns a
@@ -157,7 +157,7 @@ def generate_ugc_avatar_video(
 def generate_product_image(
     prompt: str,
     size: str = "square_hd",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate a still creative via Fal image model (flux/dev by default)."""
     prompt = (prompt or "").strip()
     if not prompt:
@@ -189,9 +189,9 @@ def build_ugc_brief_and_render(
     product_name: str,
     hook: str,
     script_15s: str,
-    avatar: Optional[str] = None,
+    avatar: str | None = None,
     render: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Creative-pipeline helper: package brief + optional Fal render."""
     brief = {
         "product_name": product_name,
@@ -202,7 +202,7 @@ def build_ugc_brief_and_render(
         "platform": ["tiktok", "meta_reels"],
         "compliance": "No medical/disease/income claims. Lifestyle language only.",
     }
-    out: Dict[str, Any] = {"brief": brief}
+    out: dict[str, Any] = {"brief": brief}
     if render:
         out["render"] = generate_ugc_avatar_video(
             script=f"{hook}. {script_15s}",

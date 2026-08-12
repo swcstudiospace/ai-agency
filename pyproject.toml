@@ -1,0 +1,67 @@
+[project]
+name = "ai-dropshipping-agency"
+version = "0.2.0"
+description = "Enterprise multi-agent dropshipping agency (Hermes × Agno)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers --tb=short"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["tools", "scripts", "agents", "app", "workflows", "teams"]
+omit = [
+  "*/__pycache__/*",
+  "tests/*",
+  "tmp/*",
+]
+
+[tool.coverage.report]
+fail_under = 20
+show_missing = true
+skip_empty = true
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 110
+src = ["agents", "app", "tools", "teams", "workflows", "scripts", "tests", "evals"]
+exclude = [
+  ".venv",
+  "tmp",
+  "agency-cockpit",
+  "docs-site",
+  "storefront-oxygen",
+  "node_modules",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle
+  "F",   # pyflakes
+  "I",   # isort
+  "B",   # bugbear
+  "UP",  # pyupgrade
+  "W",   # warnings
+]
+ignore = [
+  "E501",  # line length — formatter/docs
+  "B008",  # function calls in defaults (FastAPI/Agno patterns)
+  "E402",  # module import not at top — scripts set sys.path first
+  "B904",  # raise from — gradual adoption
+  "UP042", # StrEnum — py3.11+ gradual
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+"evals/*" = ["T201"]
+"scripts/*" = ["T201"]

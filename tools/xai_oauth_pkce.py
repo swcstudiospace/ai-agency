@@ -22,9 +22,9 @@ import os
 import sys
 import time
 import webbrowser
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 from urllib.parse import urlparse
 
 import httpx
@@ -53,7 +53,7 @@ class XaiOAuthError(RuntimeError):
 
 
 def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _validate_xai_endpoint(url: str, *, field: str) -> str:
@@ -70,7 +70,7 @@ def _token_path() -> Path:
     return Path(DEFAULT_TOKEN_PATH).expanduser()
 
 
-def _load_json(path: Path) -> Dict[str, Any]:
+def _load_json(path: Path) -> dict[str, Any]:
     if not path.is_file():
         return {}
     try:
@@ -80,7 +80,7 @@ def _load_json(path: Path) -> Dict[str, Any]:
         return {}
 
 
-def _save_tokens(state: Dict[str, Any], path: Optional[Path] = None) -> Path:
+def _save_tokens(state: dict[str, Any], path: Path | None = None) -> Path:
     target = path or _token_path()
     target.parent.mkdir(parents=True, exist_ok=True)
     tmp = target.with_suffix(target.suffix + ".tmp")
@@ -94,7 +94,7 @@ def _save_tokens(state: Dict[str, Any], path: Optional[Path] = None) -> Path:
     return target
 
 
-def _jwt_exp(access_token: str) -> Optional[int]:
+def _jwt_exp(access_token: str) -> int | None:
     try:
         parts = access_token.split(".")
         if len(parts) < 2:
@@ -116,7 +116,7 @@ def _is_expiring(access_token: str, skew_seconds: int = 120) -> bool:
     return time.time() >= (exp - max(0, skew_seconds))
 
 
-def discover_oidc(timeout_seconds: float = 15.0) -> Dict[str, str]:
+def discover_oidc(timeout_seconds: float = 15.0) -> dict[str, str]:
     try:
         response = httpx.get(
             XAI_OAUTH_DISCOVERY_URL,
@@ -150,7 +150,7 @@ def refresh_tokens(
     *,
     token_endpoint: str = "",
     timeout_seconds: float = 20.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if not refresh_token.strip():
         raise XaiOAuthError(
             "Missing refresh_token. Run: python -m tools.xai_oauth_pkce login",
@@ -198,7 +198,7 @@ def refresh_tokens(
     }
 
 
-def _request_device_code(client: httpx.Client) -> Dict[str, Any]:
+def _request_device_code(client: httpx.Client) -> dict[str, Any]:
     response = client.post(
         XAI_OAUTH_DEVICE_CODE_URL,
         headers={
@@ -234,7 +234,7 @@ def _poll_device_token(
     device_code: str,
     expires_in: int,
     poll_interval: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     deadline = time.monotonic() + max(1, int(expires_in))
     interval = max(1, int(poll_interval))
     while time.monotonic() < deadline:
@@ -278,7 +278,7 @@ def _poll_device_token(
     raise XaiOAuthError("Timed out waiting for xAI device authorization", code="device_code_timeout")
 
 
-def device_code_login(*, open_browser: bool = True, timeout_seconds: float = 20.0) -> Dict[str, Any]:
+def device_code_login(*, open_browser: bool = True, timeout_seconds: float = 20.0) -> dict[str, Any]:
     discovery = discover_oidc(timeout_seconds)
     token_endpoint = discovery["token_endpoint"]
     with httpx.Client(timeout=max(20.0, timeout_seconds), headers={"Accept": "application/json"}) as client:
@@ -323,7 +323,7 @@ def device_code_login(*, open_browser: bool = True, timeout_seconds: float = 20.
     return state
 
 
-def _tokens_from_project_store() -> Optional[Dict[str, Any]]:
+def _tokens_from_project_store() -> dict[str, Any] | None:
     state = _load_json(_token_path())
     tokens = state.get("tokens") if isinstance(state.get("tokens"), dict) else {}
     access = str(tokens.get("access_token") or "").strip()
@@ -333,7 +333,7 @@ def _tokens_from_project_store() -> Optional[Dict[str, Any]]:
     return state
 
 
-def _tokens_from_hermes_store() -> Optional[Dict[str, Any]]:
+def _tokens_from_hermes_store() -> dict[str, Any] | None:
     store = _load_json(HERMES_AUTH_PATH)
     # Hermes shapes vary: providers dict or nested auth entries
     providers = store.get("providers") if isinstance(store.get("providers"), dict) else {}
@@ -352,7 +352,7 @@ def _tokens_from_hermes_store() -> Optional[Dict[str, Any]]:
     return state
 
 
-def _persist_refreshed(state: Dict[str, Any], refreshed: Dict[str, Any], *, project: bool) -> Dict[str, Any]:
+def _persist_refreshed(state: dict[str, Any], refreshed: dict[str, Any], *, project: bool) -> dict[str, Any]:
     tokens = dict(state.get("tokens") or {})
     tokens["access_token"] = refreshed["access_token"]
     tokens["refresh_token"] = refreshed["refresh_token"]
@@ -408,11 +408,11 @@ def get_xai_token_or_fallback(*, force_refresh: bool = False, skew_seconds: int 
     return access
 
 
-def status() -> Dict[str, Any]:
+def status() -> dict[str, Any]:
     env_set = bool((os.getenv("XAI_API_KEY") or "").strip())
     project = _tokens_from_project_store()
     hermes = _tokens_from_hermes_store()
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "xai_api_key_set": env_set,
         "project_token_path": str(_token_path()),
         "project_oauth_set": project is not None,
@@ -435,7 +435,7 @@ def logout() -> None:
         print(f"No project token file at {path}")
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m tools.xai_oauth_pkce", description="xAI SuperGrok device-code OAuth")
     sub = parser.add_subparsers(dest="cmd", required=True)
 

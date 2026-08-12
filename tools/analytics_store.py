@@ -12,7 +12,7 @@ import sqlite3
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 _DB = Path(__file__).resolve().parents[1] / "kip_memory" / "data" / "analytics.db"
 
@@ -92,8 +92,8 @@ def record_metric(
     name: str = "",
     value: float = 0.0,
     unit: str = "",
-    dims: Optional[dict] = None,
-) -> Dict[str, Any]:
+    dims: dict | None = None,
+) -> dict[str, Any]:
     mid = f"m_{uuid.uuid4().hex[:12]}"
     ts = time.time()
     dims = dims or {}
@@ -142,7 +142,7 @@ def upsert_sku_daily(
     ad_spend: float = 0.0,
     cogs: float = 0.0,
     returns: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     pg = _pg_conn()
     if pg is not None:
         try:
@@ -195,7 +195,7 @@ def upsert_sku_daily(
     return out
 
 
-def query_metrics(kind: str = "", limit: int = 50) -> Dict[str, Any]:
+def query_metrics(kind: str = "", limit: int = 50) -> dict[str, Any]:
     c = _sqlite()
     if kind:
         rows = c.execute(
@@ -224,7 +224,7 @@ def query_metrics(kind: str = "", limit: int = 50) -> Dict[str, Any]:
     }
 
 
-def sku_scoreboard(limit: int = 30) -> Dict[str, Any]:
+def sku_scoreboard(limit: int = 30) -> dict[str, Any]:
     c = _sqlite()
     rows = c.execute(
         """

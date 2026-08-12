@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Dict, Iterable, Optional
 
 # Prefer repo-relative + home paths so CI runners (non-root) do not choke on
 # developer machine absolute paths.
@@ -37,11 +37,16 @@ _FORCE_FROM_PROJECT = (
     "LINEAR_GITHUB_REPO",
     "AGENCY_GROK_MODEL",
     "PARALLEL_API_KEY",
+    "SHOPIFY_SHOP_NAME",
+    "SHOPIFY_CLIENT_ID",
+    "SHOPIFY_CLIENT_SECRET",
+    "SHOPIFY_ACCESS_TOKEN",
+    "AGENCY_PRIMARY_DOMAIN",
 )
 
 
-def _parse_env_file(path: Path) -> Dict[str, str]:
-    out: Dict[str, str] = {}
+def _parse_env_file(path: Path) -> dict[str, str]:
+    out: dict[str, str] = {}
     try:
         if not path.is_file():
             return out
@@ -86,7 +91,7 @@ def env_bool(name: str, default: bool = False) -> bool:
     return v in {"1", "true", "yes", "on"}
 
 
-def require_env(*names: str) -> Optional[str]:
+def require_env(*names: str) -> str | None:
     """Return first missing env name, else None."""
     load_dotenv_files()
     for n in names:
@@ -95,7 +100,7 @@ def require_env(*names: str) -> Optional[str]:
     return None
 
 
-def redact_dict(d: Dict) -> Dict:
+def redact_dict(d: dict) -> dict:
     out = {}
     for k, v in d.items():
         lk = k.lower()

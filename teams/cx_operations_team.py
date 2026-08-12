@@ -1,9 +1,10 @@
 """CX Operations Team — markdown in prompts/teams/cx_ops/."""
 
-from agents.customer_success import customer_success
-from agents.returns_specialist import returns_specialist
 from agents.chargeback_specialist import chargeback_specialist
+from agents.customer_success import customer_success
 from agents.cx_escalations import cx_escalations
+from agents.returns_specialist import returns_specialist
+
 from teams._factory import build_team
 
 cx_operations_team = build_team(

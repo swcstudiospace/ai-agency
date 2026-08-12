@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Callable, Dict, Optional
-
+from collections.abc import Callable
+from typing import Any
 
 # Hard blocks at L2 — true irreversible money movement without dedicated HITL tools.
 _BLOCKED_EXACT = {
@@ -35,9 +35,9 @@ def _tool_name(fn: Any) -> str:
 def autonomy_tool_hook(
     function_name: str = "",
     function: Any = None,
-    arguments: Optional[Dict[str, Any]] = None,
+    arguments: dict[str, Any] | None = None,
     **kwargs: Any,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """L2 defaults: drafts OK; live spend only via spend_vault tokens; no self-confirm."""
     level = (os.getenv("AGENCY_AUTONOMY", "L2") or "L2").upper().strip()
     name = (function_name or _tool_name(function) or "").lower()

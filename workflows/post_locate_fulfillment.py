@@ -1,9 +1,8 @@
 """Post-locate: supplier outreach + shipping pipeline setup."""
 
 from agno.workflow import Step, Workflow
-
-from teams.supply_chain_team import supply_chain_team
 from teams.store_ops_team import store_ops_team
+from teams.supply_chain_team import supply_chain_team
 
 post_locate_fulfillment_workflow = Workflow(
     name="Post-Locate Fulfillment Setup",

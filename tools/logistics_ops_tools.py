@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 
 def logistics_exception_triage(
     exception_type: str,
     days_since_ship: int = 0,
     carrier: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Triage shipping exception and recommend recovery ladder step."""
     et = (exception_type or "unknown").lower()
-    actions: List[str] = []
+    actions: list[str] = []
     if "no_scan" in et or "noscan" in et or et == "no-scan":
         actions = ["carrier_inquiry", "proactive_cs", "day12_replace_rule"]
         urgency = "high" if days_since_ship >= 7 else "medium"
@@ -42,7 +42,7 @@ def logistics_recovery_plan(
     tracking: str,
     exception_type: str,
     customer_facing: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Draft recovery plan + optional customer blurb."""
     blurb = ""
     if customer_facing:

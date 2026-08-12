@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from tools.analytics_store import get_analytics_tools
-from tools.anda_knowledge import get_anda_brain_tools, get_anda_filesystem_knowledge
+from tools.anda_knowledge import get_anda_brain_tools
 from tools.catalog_ops_tools import get_catalog_ops_tools
 from tools.chargeback_ops_tools import get_chargeback_ops_tools
 from tools.community_ops_tools import get_community_ops_tools
@@ -41,19 +42,19 @@ from tools.tax_ops_tools import get_tax_ops_tools
 from tools.tiktok_ads_tools import get_tiktok_tools
 
 
-def _parallel_core() -> List[Any]:
+def _parallel_core() -> list[Any]:
     return [parallel_search, parallel_extract, parallel_task, parallel_task_result]
 
 
-def _parallel_research() -> List[Any]:
+def _parallel_research() -> list[Any]:
     return _parallel_core() + [parallel_entity_search, parallel_create_monitor]
 
 
-def _parallel_light() -> List[Any]:
+def _parallel_light() -> list[Any]:
     return [parallel_search, parallel_extract]
 
 
-TOOLBELTS: Dict[str, List[Any]] = {
+TOOLBELTS: dict[str, list[Any]] = {
     "parallel_research": _parallel_research(),
     "parallel_core": _parallel_core(),
     "parallel_light": _parallel_light(),
@@ -90,12 +91,12 @@ TOOLBELTS: Dict[str, List[Any]] = {
 }
 
 
-def resolve_toolbelt(names: Sequence[str] | None) -> List[Any]:
+def resolve_toolbelt(names: Sequence[str] | None) -> list[Any]:
     """Compose tools from named belts; de-dupe by function identity/name."""
     if not names:
         return []
     seen: set[str] = set()
-    out: List[Any] = []
+    out: list[Any] = []
     for name in names:
         belt = TOOLBELTS.get(name)
         if not belt:
