@@ -1,0 +1,10 @@
+title = "ai-agency"
+
+[allowlist]
+description = "Docs, examples, and non-secret client ids"
+paths = [
+  '''^\.env\.example$''',
+  '''(.*?)(\.md)$''',
+  '''docs-site/.*''',
+  '''agency-cockpit/.*\.svg$''',
+]
